@@ -88,7 +88,7 @@ with tf.Session(graph=graph) as sess:
       test_inputs, test_targets = next_batch_test(batch_size, test_names)
       test_t15, test_t14, test_t13, test_t12, test_t11, test_t10 = test_targets
       test_D, test_m = sess.run([Decoded, monitor], feed_dict={
-          input: train_inputs,
+          input: test_inputs,
           target15: test_t15,
           target14: test_t14,
           target13: test_t13,
