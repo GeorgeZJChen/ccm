@@ -121,8 +121,8 @@ with tf.Session(graph=graph) as sess:
 
       if step%1000==0 and True:
 
-        display_set_of_imgs([out14[0], train_t14[0], out13[0], train_t13[0], out12[0]
-                             , train_t12[0], out11[0], train_t11[0], out10[0], train_t10[0], denormalize(train_inputs[0])]
+        display_set_of_imgs([train_out14[0], train_t14[0], train_out13[0], train_t13[0], train_out12[0]
+                             , train_t12[0], train_out11[0], train_t11[0], train_out10[0], train_t10[0], denormalize(train_inputs[0])]
                              , rows=3, size=2, name='train-'+str(global_step))
 
       if step%1000==0:
