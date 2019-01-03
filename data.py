@@ -39,6 +39,7 @@ test_names = preprocess_data(
     input_size=[384,512]
 )
 random.shuffle(test_names)
+test_names = np.array(test_names)
 print()
 print(len(test_names), 'of data')
 

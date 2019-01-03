@@ -129,7 +129,7 @@ def model(input, targets, training):
 
   trainables = tf.trainable_variables()
 
-  train_vgg = tf.train.AdamOptimizer(1e-8).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
+  train_vgg = tf.train.AdamOptimizer(1e-7).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
   train_others = tf.train.AdamOptimizer(alpha).minimize(loss, var_list=[var for var in trainables if 'vgg' not in var.name])
   train = tf.group(train_vgg, train_others)
 #   train = tf.train.GradientDescentOptimizer(1e-8).minimize(loss + L2_loss)
