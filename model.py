@@ -69,7 +69,6 @@ def decoder(inputs, training):
 
   layer = conv_t(4, layer14, 256, dropout=0.3, training=training)
   layer = tf.concat([layer, layer13], axis=3)
-  layer = conv(3, layer, 512, dropout=0.3, training=training)
   out13 = conv(1, layer, 1, act=None)
   print('out13', out13.shape)
 
@@ -77,7 +76,6 @@ def decoder(inputs, training):
   layer = tf.concat([layer, layer13], axis=3)
   layer = conv_t(4, layer, 256, dropout=0.3, training=training)
   layer = tf.concat([layer, layer12], axis=3)
-  layer = conv(3, layer, 512, dropout=0.3, training=training)
   out12 = conv(1, layer, 1, act=None)
   print('out12', out12.shape)
 
@@ -87,7 +85,6 @@ def decoder(inputs, training):
   layer = tf.concat([layer, layer12], axis=3)
   layer = conv_t(4, layer, 256, dropout=0.3, training=training)
   layer = tf.concat([layer, layer11], axis=3)
-  layer = conv(3, layer, 512, dropout=0.3, training=training)
   out11 = conv(1, layer, 1, act=None)
   print('out11', out11.shape)
 
@@ -99,7 +96,6 @@ def decoder(inputs, training):
   layer = tf.concat([layer, layer11], axis=3)
   layer = conv_t(4, layer, 256, dropout=0.3, training=training)
   layer = tf.concat([layer, layer10], axis=3)
-  layer = conv(3, layer, 512, dropout=0.3, training=training)
   out10 = conv(1, layer, 1, act=None)
   print('out10', out10.shape)
 
