@@ -82,7 +82,7 @@ with tf.Session(graph=graph) as sess:
         EMA = train_loss_G
     else:
         EMA = moving_average(train_loss_G, EMA)
-    if step%100==0:
+    if step%20==0:
 
       train_D = sess.run(Decoded, feed_dict={
           input: train_inputs,
