@@ -25,23 +25,22 @@ tf.reset_default_graph()
 train_names = preprocess_data(
     names=load_data_names(train=True, part= part),
     data_path='./datasets/shanghaitech/'+part+'/train/',
-    random_crop=15,
+    random_crop=20,
     input_size=[384,512]
 )
 random.shuffle(train_names)
 print()
-print(len(train_names), 'of data')
+print(len(train_names), 'of training data')
 
 test_names = preprocess_data(
-    names=load_data_names(train=True, part= part),
+    names=load_data_names(train=False, part= part),
     data_path='./datasets/shanghaitech/'+part+'/test/',
     quarter_crops=True,
     input_size=[384,512]
 )
 random.shuffle(test_names)
-test_names = np.array(test_names)
 print()
-print(len(test_names), 'of data')
+print(len(test_names), 'of testing data')
 
 with open('train_names.pkl', 'wb') as f:
     pickle.dump(train_names, f)
