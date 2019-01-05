@@ -52,6 +52,7 @@ with tf.Session(graph=graph) as sess:
     train_MAEs = None
 
   for step in range(100000):
+    learning_rate = 1e-5
 
     train_inputs, train_targets = next_batch(batch_size, train_names)
     train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
@@ -64,7 +65,7 @@ with tf.Session(graph=graph) as sess:
       target11: train_t11,
       target10: train_t10,
       training: True,
-      alpha: 1e-5,
+      alpha: learning_rate,
     })
     _ , train_loss_D,  = sess.run([train_Dis, D_loss], feed_dict={
       input: train_inputs,
@@ -75,7 +76,7 @@ with tf.Session(graph=graph) as sess:
       target11: train_t11,
       target10: train_t10,
       training: True,
-      alpha: 1e-5,
+      alpha: learning_rate,
     })
     if EMA == 0:
         EMA = train_loss_G
@@ -124,5 +125,5 @@ with tf.Session(graph=graph) as sess:
         log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step), '] || [Result]:', str(test_results)]
         print(*log_str)
         logging.info(' '.join(log_str))
-        
+
     global_step = global_step + 1
