@@ -307,17 +307,18 @@ def set_pretrained(sess):
 
   tf_p_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   torch_p_ids = [0, 2, 5, 7, 10, 12, 14, 17, 19, 21]
+  trainables = tf.trainable_variables()
   for i in range(10):
-    tf_name_w = 'vgg_conv_'+str(tf_p_ids[i])+'/kernel:0'
-    tf_name_b = 'vgg_conv_'+str(tf_p_ids[i])+'/bias:0'
+    tf_name_w = 'generator/vgg_conv_'+str(tf_p_ids[i])+'/kernel:0'
+    tf_name_b = 'generator/vgg_conv_'+str(tf_p_ids[i])+'/bias:0'
 
     torch_name_w = 'features.'+str(torch_p_ids[i])+'.weight'
     torch_name_b = 'features.'+str(torch_p_ids[i])+'.bias'
 
-    var_w = [v for v in tf.trainable_variables() if v.name == tf_name_w ][0]
+    var_w = [v for v in trainables if v.name == tf_name_w ][0]
     sess.run(tf.assign(var_w, np.transpose(torch_dict[torch_name_w].data.numpy(), (2,3,1,0))))
 
-    var_b = [v for v in tf.trainable_variables() if v.name == tf_name_b ][0]
+    var_b = [v for v in trainables if v.name == tf_name_b ][0]
     sess.run(tf.assign(var_b, torch_dict[torch_name_b].data.numpy()))
 #   test_set_pretrained('CAC/vgg_conv_10/kernel:0', 'features.21.weight', torch_dict)
 

@@ -141,7 +141,8 @@ def get_data_by_name(name):
   targets = [[target15], [target14], [target13], [target12], [target11], [target10]]
   return np.array(normalize([img])), targets
 
-def full_test(sess, Decoded):
+def full_test(sess, Decoded, 
+    input, target15, target14, target13, target12, target11, target10, training):
   print(">>> Test begins", end='.')
   test_names, test_dict = get_test_names()
   for key in test_dict:
