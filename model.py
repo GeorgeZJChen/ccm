@@ -39,11 +39,14 @@ def encoder(input, training, dropout):
   pool = maxpool(2, layer4)
   layer5 = conv(3, pool, 256, name='vgg_conv_5')
   layer6 = conv(3, layer5, 256, name='vgg_conv_6')
-  layer7 = conv(3, layer6, 256, name='vgg_conv_7') # 96x128 4
+  layer7 = conv(3, layer6, 256, name='vgg_conv_7')
   pool = maxpool(2, layer7)
   layer8 = conv(3, pool, 512, name='vgg_conv_8')
   layer9 = conv(3, layer8, 512, name='vgg_conv_9')
-  layer10 = conv(3, layer9, 512, name='vgg_conv_10') # 48x64 8
+  layer10 = conv(3, layer9, 512, name='vgg_conv_10')
+
+  layer10 = conv(3, layer10, 256, strides=1, dropout=dropout, training=training)
+  print('10', layer10.shape) # 48x64 8
 
   layer11 = conv(3, layer10, 512, strides=2, dropout=dropout, training=training)
   layer11 = conv(3, layer11, 256, strides=1, dropout=dropout, training=training)

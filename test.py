@@ -109,7 +109,7 @@ def preprocess_data_test(names, data_path, save_path='./processed',
   return out_names
 
 def get_test_names():
-    if not (os.path.exists('./test_dict.pkl') or os.path.exists('./strict_test_names.pkl')):
+    if not (os.path.exists('./test_dict.pkl') and os.path.exists('./strict_test_names.pkl')):
         # tf.reset_default_graph()
         test_dict = {}
         strict_test_names = preprocess_data(
