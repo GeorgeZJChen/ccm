@@ -109,13 +109,12 @@ def preprocess_data_test(names, data_path, save_path='./processed',
   return out_names
 
 def get_test_names():
-    if not (os.path.exists('./test_dict.pkl') and os.path.exists('./test_names.pkl')):
+    if not (os.path.exists('./test_dict.pkl') or os.path.exists('./strict_test_names.pkl')):
         # tf.reset_default_graph()
         test_dict = {}
-        test_names = preprocess_data_test(
-            names=load_data_names(train=False, part='B'),
-            data_path='./datasets/shanghaitech/B/test/',
-            quarter_crops=True,
+        strict_test_names = preprocess_data(
+            names=load_data_names(train=False, part='A'),
+            data_path='./datasets/shanghaitech/A/test/',
             test=True,
             test_dict=test_dict,
             input_size=[384,512]
@@ -123,14 +122,14 @@ def get_test_names():
         random.shuffle(test_names)
         print()
         print(len(test_names), 'of data')
-        with open('test_names.pkl', 'wb') as f:
-            pickle.dump(test_names, f)
+        with open('strict_test_names.pkl', 'wb') as f:
+            pickle.dump(strict_test_names, f)
         with open('test_dict.pkl', 'wb') as f:
             pickle.dump(test_dict, f)
     else:
-        test_names = pickle.load(open('./test_names.pkl', 'rb'))
+        strict_test_names = pickle.load(open('./strict_test_names.pkl', 'rb'))
         test_dict = pickle.load(open('./test_dict.pkl', 'rb'))
-    return test_names, test_dict
+    return strict_test_names, test_dict
 
 def get_data_by_name(name):
 
@@ -141,16 +140,17 @@ def get_data_by_name(name):
   targets = [[target15], [target14], [target13], [target12], [target11], [target10]]
   return np.array(normalize([img])), targets
 
+
 def full_test(sess, Decoded,
     input, target15, target14, target13, target12, target11, target10, training):
   print(">>> Test begins", end='.')
-  test_names, test_dict = get_test_names()
+  strict_test_names, test_dict = get_test_names()
   for key in test_dict:
     test_dict[key]['predict'] = np.array([0.0]*6)
     test_dict[key]['truth'] = 0
 
   step = 0
-  for test_name_strict in test_names:
+  for test_name_strict in strict_test_names:
 
     test_inputs, test_targets = get_data_by_name(test_name_strict)
     test_t15, test_t14, test_t13, test_t12, test_t11, test_t10 = test_targets
