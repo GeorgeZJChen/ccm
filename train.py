@@ -117,13 +117,13 @@ with tf.Session(graph=graph) as sess:
 
         saver.save(sess, "./model/model", global_step=global_step)
         print(">>> Model saved")
-        logging.info(">>> Model saved")
+        logging.info(">>> Model saved:", global_step)
 
-    if (step % 1000==0 and global_step>=3000) or step==0:
-        test_results = full_test(sess, Decoded,
-            input, target15, target14, target13, target12, target11, target10, training)
-        log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step), '] || [Result]:', str(test_results)]
-        print(*log_str)
-        logging.info(' '.join(log_str))
+        if global_step>=2000 or step==0:
+          test_results = full_test(sess, Decoded,
+                input, target15, target14, target13, target12, target11, target10, training)
+          log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step), '] || [Result]:', str([round(result, 2) for result in test_results])]
+          print(*log_str)
+          logging.info(' '.join(log_str))
 
     global_step = global_step + 1
