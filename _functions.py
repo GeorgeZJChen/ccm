@@ -15,8 +15,6 @@ import pickle
 import h5py
 import cv2
 
-from PIL import Image
-
 def move_files(path_to_load, part='A'):
   if not path_to_load.endswith('/'):
     path_to_load += '/'
@@ -60,7 +58,7 @@ def load_data_ShanghaiTech(path):
   return img, coords
 def display_set_of_imgs(images, rows=2, size=0.5, name='0'):
   n_images = len(images)
-  with open('./output/images/'+str(iteration)+'-'+id_generator(5)+'.pkl', 'wb') as f:
+  with open('./output/images/'+str(name)+'-'+id_generator(5)+'.pkl', 'wb') as f:
       pickle.dump(images, f)
 
   # fig = plt.figure()

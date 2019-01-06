@@ -108,21 +108,23 @@ def discriminator(input, targets, reuse, training):
     target15, target14, target13, target12, target11, target10 = targets
     layer10, layer11, layer12, layer13, layer14, layer15 = input
 
+    target10 = conv(3, target10, 128, act=tf.nn.leaky_relu)
     layer = tf.concat([layer10, target10], axis=3)
     layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
 
+    target10 = conv(3, target11, 128, act=tf.nn.leaky_relu)
     layer = tf.concat([layer, target11], axis=3)
     layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
 
+    target10 = conv(3, target12, 128, act=tf.nn.leaky_relu)
     layer = tf.concat([layer, target12], axis=3)
     layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
 
     layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
 
-    layer = conv((3,4), layer, 256, strides=2, act=tf.nn.leaky_relu, padding='valid')
+    layer = conv((3,4), layer, 512, strides=2, act=tf.nn.leaky_relu, padding='valid')
 
-    layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
-    layer = conv(4, layer, 256, strides=1, act=tf.nn.sigmoid)
+    layer = conv(1, layer, 256, strides=1, act=tf.nn.sigmoid)
 
   print('discriminator out:', layer.shape)
   return layer
@@ -140,7 +142,7 @@ def model(input, targets, training, alpha):
   out15, out14, out13, out12, out11, out10 = Decoded
 
   loss = 0
-  loss += abs_loss(out15, target15) / 8 / 12
+  loss += abs_loss(out15, target15) / 8 / 12 * 2
   loss += abs_loss(out14, target14) / 8
   loss += abs_loss(out13, target13) / 4
   loss += abs_loss(out12, target12) * 1
@@ -160,11 +162,11 @@ def model(input, targets, training, alpha):
 
   trainables = tf.trainable_variables()
 
-  train_vgg = tf.train.AdamOptimizer(1e-7).minimize(G_loss, var_list=[var for var in trainables if 'vgg' in var.name])
-  train_others = tf.train.AdamOptimizer(alpha).minimize(G_loss,
+  train_vgg = tf.train.MomentumOptimizer(1e-7, 0.9).minimize(G_loss, var_list=[var for var in trainables if 'vgg' in var.name])
+  train_others = tf.train.MomentumOptimizer(alpha, 0.9).minimize(G_loss,
                   var_list=[var for var in trainables if ('vgg' not in var.name and 'generator' in var.name)])
   train_Gen = tf.group(train_vgg, train_others)
-  train_Dis = tf.train.AdamOptimizer(alpha).minimize(D_loss, var_list=[var for var in trainables if 'discriminator' in var.name])
+  train_Dis = tf.train.MomentumOptimizer(alpha, 0.9).minimize(D_loss, var_list=[var for var in trainables if 'discriminator' in var.name])
 
   D = [tf.nn.relu(out) for out in Decoded]
 
