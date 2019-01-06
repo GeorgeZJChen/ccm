@@ -73,7 +73,9 @@ def preprocess_data_test(names, data_path, save_path='./processed',
 
       new_img = img.resize((resized_width, resized_height))
       coords_map = get_coords_map(coords, resize=[resized_height, resized_width], img_size=[img_height, img_width])
-
+      dmap_crop = sess_get_dmap.run(tf_dmap, feed_dict={
+          tf_coords_map_p: coords_map
+      })
       for leri in [0,1]:
         for uplo in [0,1]:
           crop_left = input_width*leri
@@ -81,11 +83,9 @@ def preprocess_data_test(names, data_path, save_path='./processed',
           crop_bottom = crop_top + input_height
           crop_right = crop_left + input_width
           img_crop = new_img.crop((crop_left, crop_top, crop_right, crop_bottom))
-          dmap_crop = sess_get_dmap.run(tf_dmap, feed_dict={
-              tf_coords_map_p: coords_map[:, crop_top:crop_bottom, crop_left:crop_right]
-          })
+
           ddmaps, ddmaps_mirrored = sess_get_downsized_dmaps.run(tf_ddmaps, feed_dict={
-              tf_dmap_p: dmap_crop
+              tf_dmap_p: dmap_crop[:, crop_top:crop_bottom, crop_left:crop_right]
           })
           imgs.append(img_crop)
           dmaps.append(ddmaps)
