@@ -142,7 +142,7 @@ def model(input, targets, training, alpha):
   out15, out14, out13, out12, out11, out10 = Decoded
 
   loss = 0
-  loss += abs_loss(out15, target15) / 8 / 12 * 2
+  loss += abs_loss(out15, target15) / 8 / 12
   loss += abs_loss(out14, target14) / 8
   loss += abs_loss(out13, target13) / 4
   loss += abs_loss(out12, target12) * 1
