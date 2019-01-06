@@ -117,7 +117,7 @@ with tf.Session(graph=graph) as sess:
 
         saver.save(sess, "./model/model", global_step=global_step)
         print(">>> Model saved")
-        logging.info(">>> Model saved:", global_step)
+        logging.info(">>> Model saved:", str(global_step))
 
         if global_step>=2000 or step==0:
           test_results = full_test(sess, Decoded,
