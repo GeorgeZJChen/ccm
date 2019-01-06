@@ -112,11 +112,11 @@ def discriminator(input, targets, reuse, training):
     layer = tf.concat([layer10, target10], axis=3)
     layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
 
-    target10 = conv(3, target11, 128, act=tf.nn.leaky_relu)
+    target11 = conv(3, target11, 128, act=tf.nn.leaky_relu)
     layer = tf.concat([layer, target11], axis=3)
     layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
 
-    target10 = conv(3, target12, 128, act=tf.nn.leaky_relu)
+    target12 = conv(3, target12, 128, act=tf.nn.leaky_relu)
     layer = tf.concat([layer, target12], axis=3)
     layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
 
