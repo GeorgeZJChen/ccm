@@ -113,8 +113,8 @@ def get_test_names():
         # tf.reset_default_graph()
         test_dict = {}
         strict_test_names = preprocess_data_test(
-            names=load_data_names(train=False, part='A'),
-            data_path='./datasets/shanghaitech/A/test/',
+            names=load_data_names(train=False, part='B'),
+            data_path='./datasets/shanghaitech/B/test/',
             test=True,
             test_dict=test_dict,
             input_size=[384,512]
@@ -173,7 +173,7 @@ def full_test(sess, Decoded,
 
     step += 1
 
-    if step % (len(test_names)//15) == 0:
+    if step % (len(strict_test_names)//15) == 0:
         print('.', end='')
   print()
 
