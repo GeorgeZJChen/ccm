@@ -2,7 +2,7 @@ from __future__ import print_function, division
 import tensorflow as tf
 import numpy as np
 
-def conv(kernel_size, input, filters, padding='same', strides=(1,1), name=None, act='relu', dilation=1, dropout=None, training=True):
+def conv(kernel_size, input, filters, padding='same', strides=(1,1), name=None, act=tf.nn.relu, dilation=1, dropout=None, training=True):
   out = tf.layers.conv2d(input, filters, kernel_size,
                         strides = strides,
                         dilation_rate = 1,
@@ -14,7 +14,7 @@ def conv(kernel_size, input, filters, padding='same', strides=(1,1), name=None, 
   if dropout is not None:
     out = tf.layers.dropout(out, dropout, training=training)
   return out
-def conv_t(kernel_size, input, filters, strides=2, padding='same', act='relu', dropout=None, training=True):
+def conv_t(kernel_size, input, filters, strides=2, padding='same', act=tf.nn.relu, dropout=None, training=True):
   out = tf.layers.conv2d_transpose(input, filters, kernel_size, padding=padding, strides=strides, activation=act,
                                     kernel_initializer=tf.contrib.layers.xavier_initializer(),
                                    kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=0.1),)
