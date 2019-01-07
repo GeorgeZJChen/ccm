@@ -25,10 +25,13 @@ def maxpool(kernel_size, input, strides=2):
   return tf.layers.max_pooling2d(input, kernel_size, strides, padding='same')
 def abs_loss(predict, target):
   loss = tf.losses.absolute_difference(target, predict, reduction=tf.losses.Reduction.NONE)
-  return tf.math.reduce_mean(loss)
+  return tf.reduce_mean(loss)
 def squared_loss(predict, target):
   loss = tf.losses.mean_squared_error(target, predict, reduction=tf.losses.Reduction.NONE)
-  return tf.math.reduce_mean(loss)
+  return tf.reduce_mean(loss)
+def leaky_relu(input, alpha=0.2):
+    return tf.nn.relu(input) - alpha * tf.nn.relu(-input)
+
 def encoder(input, training, dropout):
   # input: 384x512
   layer1 = conv(3, input, 64, name='vgg_conv_1')
@@ -111,21 +114,21 @@ def discriminator(input, targets, reuse, training):
     target15, target14, target13, target12, target11, target10 = targets
     layer10, layer11, layer12, layer13, layer14, layer15 = input
 
-    target10 = conv(3, target10, 128, act=tf.nn.leaky_relu)
+    target10 = conv(3, target10, 128, act=leaky_relu)
     layer = tf.concat([layer10, target10], axis=3)
-    layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
+    layer = conv(4, layer, 256, strides=2, act=leaky_relu)
 
-    target11 = conv(3, target11, 128, act=tf.nn.leaky_relu)
+    target11 = conv(3, target11, 128, act=leaky_relu)
     layer = tf.concat([layer, target11], axis=3)
-    layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
+    layer = conv(4, layer, 256, strides=2, act=leaky_relu)
 
-    target12 = conv(3, target12, 128, act=tf.nn.leaky_relu)
+    target12 = conv(3, target12, 128, act=leaky_relu)
     layer = tf.concat([layer, target12], axis=3)
-    layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
+    layer = conv(4, layer, 256, strides=2, act=leaky_relu)
 
-    layer = conv(4, layer, 256, strides=2, act=tf.nn.leaky_relu)
+    layer = conv(4, layer, 256, strides=2, act=leaky_relu)
 
-    layer = conv((3,4), layer, 512, strides=2, act=tf.nn.leaky_relu, padding='valid')
+    layer = conv((3,4), layer, 512, strides=2, act=leaky_relu, padding='valid')
 
     layer = conv(1, layer, 256, strides=1, act=tf.nn.sigmoid)
 

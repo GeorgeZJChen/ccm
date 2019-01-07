@@ -23,8 +23,8 @@ with graph.as_default():
   target10 = tf.placeholder( tf.float32 , shape=(None, 48, 64, 1))
   training = tf.placeholder( tf.bool )
   alpha = tf.placeholder_with_default(tf.constant(1e-5, tf.float64), shape=[])
-  dropout = tf.placeholder_with_default(tf.constant(0.3, tf.float32), shape=[])
-  train_Gen, train_Dis, G_loss, D_loss, loss, Decoded, monitor = model(input, [target15, target14, target13, target12, target11, target10], training, alpha, dropout)
+  train_Gen, train_Dis, G_loss, D_loss, loss, Decoded, monitor = model(input,
+        [target15, target14, target13, target12, target11, target10], training, alpha, 0.3)
 
   saver = tf.train.Saver(max_to_keep=4)
   print('total number of parameters:', total_parameters())
@@ -58,7 +58,6 @@ with tf.Session(graph=graph) as sess:
 
     train_inputs, train_targets = next_batch(batch_size, train_names)
     train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
-    random_dropout = random.random()*0.3
     _ , train_loss_G, train_loss = sess.run([train_Gen, G_loss, loss], feed_dict={
       input: train_inputs,
       target15: train_t15,
@@ -69,7 +68,6 @@ with tf.Session(graph=graph) as sess:
       target10: train_t10,
       training: True,
       alpha: learning_rate,
-      dropout: random_dropout
     })
     _ , train_loss_D,  = sess.run([train_Dis, D_loss], feed_dict={
       input: train_inputs,
@@ -81,7 +79,6 @@ with tf.Session(graph=graph) as sess:
       target10: train_t10,
       training: True,
       alpha: learning_rate,
-      dropout: random_dropout
     })
     if EMA == 0:
         EMA = train_loss_G
@@ -98,12 +95,12 @@ with tf.Session(graph=graph) as sess:
           target11: train_t11,
           target10: train_t10,
           training: True,
-          dropout: random_dropout
       })
       train_out15, train_out14, train_out13, train_out12, train_out11, train_out10 = train_D
 
       if train_MAEs is None:
-        train_MAEs = [ MAE(train_out15, train_t15), MAE(train_out14, train_t14), MAE(train_out13, train_t13), MAE(train_out12, train_t12), MAE(train_out11, train_t11), MAE(train_out10, train_t10)]
+        train_MAEs = [ MAE(train_out15, train_t15), MAE(train_out14, train_t14), MAE(train_out13, train_t13),
+            MAE(train_out12, train_t12), MAE(train_out11, train_t11), MAE(train_out10, train_t10)]
       else:
         train_MAEs = moving_average_array([ MAE(train_out15, train_t15), MAE(train_out14, train_t14), MAE(train_out13, train_t13),
                 MAE(train_out12, train_t12), MAE(train_out11, train_t11), MAE(train_out10, train_t10)], train_MAEs)

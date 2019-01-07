@@ -112,7 +112,7 @@ def get_test_names():
     if not (os.path.exists('./test_dict.pkl') and os.path.exists('./strict_test_names.pkl')):
         # tf.reset_default_graph()
         test_dict = {}
-        strict_test_names = preprocess_data(
+        strict_test_names = preprocess_data_test(
             names=load_data_names(train=False, part='A'),
             data_path='./datasets/shanghaitech/A/test/',
             test=True,

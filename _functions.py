@@ -81,7 +81,7 @@ def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
   return ''.join(random.choice(chars) for _ in range(size))
 def total_parameters(scope=None):
   total_parameters = 0
-  for variable in tf.trainable_variables(scope):
+  for variable in tf.trainable_variables():
       # shape is an array of tf.Dimension
       shape = variable.get_shape()
       variable_parameters = 1
