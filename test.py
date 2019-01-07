@@ -119,9 +119,9 @@ def get_test_names():
             test_dict=test_dict,
             input_size=[384,512]
         )
-        random.shuffle(test_names)
+        random.shuffle(strict_test_names)
         print()
-        print(len(test_names), 'of data')
+        print(len(strict_test_names), 'of data')
         with open('strict_test_names.pkl', 'wb') as f:
             pickle.dump(strict_test_names, f)
         with open('test_dict.pkl', 'wb') as f:
