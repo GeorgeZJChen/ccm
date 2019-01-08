@@ -36,7 +36,7 @@ with open('train_names.pkl', 'rb') as f:
     train_names = pickle.load(f)
 with open('test_names.pkl', 'rb') as f:
     test_names = pickle.load(f)
-test_names = np.array(test_names)
+train_names, test_names = get_train_data_names(part='B')
 
 print("Training begins")
 with tf.Session(graph=graph) as sess:

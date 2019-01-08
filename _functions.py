@@ -168,7 +168,8 @@ def get_resized_image_and_density_map(img, coords_map, kernel, resize):
   img = tf.cast(img, tf.uint8)
   return img, density_map
 
-def preprocess_data(names, data_path, save_path='./processed', whole_image=True, random_crop=None, quarter_crops=True, input_size=[384, 512]):
+def preprocess_data(names, data_path, save_path='./processed', random_crop=None, input_size=[384, 512]
+                    , test=False, test_dict=None):
   if not data_path.endswith('/'):
     data_path += '/'
   if not save_path.endswith('/'):
@@ -176,10 +177,13 @@ def preprocess_data(names, data_path, save_path='./processed', whole_image=True,
   if not os.path.exists(save_path):
     os.makedirs(save_path)
 
+  if test and not 'names_to_name' in test_dict:
+    test_dict['names_to_name'] = {}
+
   input_height, input_width = input_size
   prog = 0
   out_names = []
-  kernel = gaussian_kernel(shape=(48,48),sigma=10)
+  kernel = gaussian_kernel(shape=(24,24),sigma=10)
   kernel = np.reshape(kernel, kernel.shape+(1,1))
 
   graph_get_dmap = tf.Graph()
@@ -211,69 +215,41 @@ def preprocess_data(names, data_path, save_path='./processed', whole_image=True,
     imgs = []
     dmaps = []
 
-    if whole_image:
+    rows, columns = fit_grid(img_height, img_width, input_size=[input_height, input_width])
 
-      resized_height = input_height
-      resized_width = input_width
+    resized_height = rows*input_height
+    resized_width = columns*input_width
+    new_img = img.resize((resized_width, resized_height))
+    coords_map = get_coords_map(coords, resize=[resized_height, resized_width], img_size=[img_height, img_width])
+    dmap = sess_get_dmap.run(tf_dmap, feed_dict={
+        tf_coords_map_p: coords_map
+    })
+    for row in range(rows):
+      for col in range(columns):
+        crop_top = input_height*row
+        crop_left = input_width*col
+        crop_bottom = crop_top + input_height
+        crop_right = crop_left + input_width
+        img_crop = new_img.crop((crop_left, crop_top, crop_right, crop_bottom))
 
-      new_img = img.resize((resized_width, resized_height))
-      coords_map = get_coords_map(coords, resize=[resized_height, resized_width], img_size=[img_height, img_width])
+        ddmaps, ddmaps_mirrored = sess_get_downsized_dmaps.run(tf_ddmaps, feed_dict={
+            tf_dmap_p: dmap[:, crop_top:crop_bottom, crop_left:crop_right]
+        })
 
-      dmap = sess_get_dmap.run(tf_dmap, feed_dict={
-          tf_coords_map_p: coords_map
-      })
-      ddmaps, ddmaps_mirrored = sess_get_downsized_dmaps.run(tf_ddmaps, feed_dict={
-          tf_dmap_p: dmap
-      })
-
-      imgs.append(new_img)
-      dmaps.append(ddmaps)
-
-      imgs.append(ImageOps.mirror(new_img))
-      dmaps.append(ddmaps_mirrored)
-
-    if quarter_crops:
-      assert abs(img_height/img_width - input_height/input_width) < 0.2
-      resized_height = input_height*2
-      resized_width = input_width*2
-
-      new_img = img.resize((resized_width, resized_height))
-      coords_map = get_coords_map(coords, resize=[resized_height, resized_width], img_size=[img_height, img_width])
-
-      dmap_crop = sess_get_dmap.run(tf_dmap, feed_dict={
-          tf_coords_map_p: coords_map
-      })
-
-      for leri in [0,1]:
-        for uplo in [0,1]:
-          crop_left = input_width*leri
-          crop_top = input_height*uplo
-          crop_bottom = crop_top + input_height
-          crop_right = crop_left + input_width
-          img_crop = new_img.crop((crop_left, crop_top, crop_right, crop_bottom))
-
-          ddmaps, ddmaps_mirrored = sess_get_downsized_dmaps.run(tf_ddmaps, feed_dict={
-              tf_dmap_p: dmap_crop[:, crop_top:crop_bottom, crop_left:crop_right]
-          })
-          imgs.append(img_crop)
-          dmaps.append(ddmaps)
-
+        imgs.append(img_crop)
+        dmaps.append(ddmaps)
+        if not test:
           imgs.append(ImageOps.mirror(img_crop))
           dmaps.append(ddmaps_mirrored)
 
-    if random_crop is not None:
+    if random_crop is not None and not (rows==1 and columns==1) and not test:
+      dmap = sess_get_dmap.run(tf_dmap, feed_dict={
+          tf_coords_map_p: coords_map
+      })
       for b in range(random_crop):
 
-        resized_height, resized_width = random_size(input_size=[input_height, input_width], img_size=(img_height, img_width))
-        new_img = img.resize((resized_width, resized_height))
-        coords_map = get_coords_map(coords, resize=[resized_height, resized_width], img_size=[img_height, img_width])
-
-        dmap = sess_get_dmap.run(tf_dmap, feed_dict={
-            tf_coords_map_p: coords_map
-        })
-
-        crop_top = np.random.randint(0, resized_height - input_height)
-        crop_left = np.random.randint(0, resized_width - input_width)
+        crop_top = 0 if rows==1 else np.random.randint(0, resized_height - input_height)
+        crop_left = 0 if columns==1 else np.random.randint(0, resized_width - input_width)
         crop_bottom = crop_top + input_height
         crop_right = crop_left + input_width
         img_crop = new_img.crop((crop_left, crop_top, crop_right, crop_bottom))
@@ -291,11 +267,22 @@ def preprocess_data(names, data_path, save_path='./processed', whole_image=True,
     for i in range(len(imgs)):
       new_name = id_generator()
 
-      imgs[i].save(save_path + new_name + '.jpg', 'JPEG')
+      img_i = imgs[i]
+      if random.random()>0.9:
+        img_i = img_i.convert('L').convert('RGB')
+      img_i.save(save_path + new_name + '.jpg', 'JPEG')
       with open(save_path + new_name + '.pkl', 'wb') as f:
         pickle.dump(dmaps[i], f)
 
       out_names.append(save_path + new_name)
+
+      if test:
+        test_dict['names_to_name'][save_path + new_name] = name
+    if test:
+      test_dict[name] = {
+          'predict': -1,
+          'truth': len(coords)
+      }
   return out_names
 
 def set_pretrained(sess):

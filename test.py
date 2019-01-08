@@ -16,105 +16,13 @@ import cv2
 from _functions import *
 from model import *
 
-def preprocess_data_test(names, data_path, save_path='./processed',
-                    quarter_crops=True, input_size=[384, 512],
-                    test=False,
-                    test_dict=None
-                   ):
-  if not data_path.endswith('/'):
-    data_path += '/'
-  if not save_path.endswith('/'):
-    save_path += '/'
-  if not os.path.exists(save_path):
-    os.makedirs(save_path)
-
-  if test and not 'names_to_name' in test_dict:
-    test_dict['names_to_name'] = {}
-
-  input_height, input_width = input_size
-  prog = 0
-  out_names = []
-  kernel = gaussian_kernel(shape=(48,48),sigma=10)
-  kernel = np.reshape(kernel, kernel.shape+(1,1))
-
-  graph_get_dmap = tf.Graph()
-  with graph_get_dmap.as_default():
-
-    kernel = tf.constant(kernel, dtype=tf.float32)
-
-    tf_coords_map_p = tf.placeholder(tf.float32, [1,None,None,1])
-    tf_dmap = tf.nn.conv2d(tf_coords_map_p, kernel, strides=(1,1,1,1), padding='SAME')
-
-  graph_get_downsized_dmaps = tf.Graph()
-  with graph_get_downsized_dmaps.as_default():
-
-    tf_dmap_p = tf.placeholder(tf.float32, [1,input_height,input_width,1])
-    tf_ddmaps = get_downsized_density_maps(tf_dmap_p)
-
-  sess_get_dmap = tf.Session(graph=graph_get_dmap)
-  sess_get_downsized_dmaps = tf.Session(graph=graph_get_downsized_dmaps)
-
-  for ni in tqdm(range(len(names))):
-    name = data_path +  names[ni]
-
-    img, coords = load_data_ShanghaiTech(name)
-
-    if img.mode !='RGB':
-      img = img.convert('RGB')
-    img_width, img_height = img.size
-
-    imgs = []
-    dmaps = []
-
-    if quarter_crops:
-      assert abs(img_height/img_width - input_height/input_width) < 0.2
-      resized_height = input_height*2
-      resized_width = input_width*2
-
-      new_img = img.resize((resized_width, resized_height))
-      coords_map = get_coords_map(coords, resize=[resized_height, resized_width], img_size=[img_height, img_width])
-      dmap_crop = sess_get_dmap.run(tf_dmap, feed_dict={
-          tf_coords_map_p: coords_map
-      })
-      for leri in [0,1]:
-        for uplo in [0,1]:
-          crop_left = input_width*leri
-          crop_top = input_height*uplo
-          crop_bottom = crop_top + input_height
-          crop_right = crop_left + input_width
-          img_crop = new_img.crop((crop_left, crop_top, crop_right, crop_bottom))
-
-          ddmaps, ddmaps_mirrored = sess_get_downsized_dmaps.run(tf_ddmaps, feed_dict={
-              tf_dmap_p: dmap_crop[:, crop_top:crop_bottom, crop_left:crop_right]
-          })
-          imgs.append(img_crop)
-          dmaps.append(ddmaps)
-
-    for i in range(len(imgs)):
-      new_name = id_generator()
-
-      imgs[i].save(save_path + new_name + '.jpg', 'JPEG')
-      with open(save_path + new_name + '.pkl', 'wb') as f:
-        pickle.dump(dmaps[i], f)
-
-      out_names.append(save_path + new_name)
-
-      if test:
-        test_dict['names_to_name'][save_path + new_name] = name
-    if test:
-      test_dict[name] = {
-          'predict': -1
-      }
-
-  return out_names
-
-def get_test_names():
+def get_test_names(part='B'):
     if not (os.path.exists('./test_dict.pkl') and os.path.exists('./strict_test_names.pkl')):
         # tf.reset_default_graph()
         test_dict = {}
-        strict_test_names = preprocess_data_test(
-            names=load_data_names(train=False, part='B'),
-            data_path='./datasets/shanghaitech/B/test/',
+        strict_test_names = preprocess_data(
+            names=load_data_names(train=False, part=part),
+            data_path='./datasets/shanghaitech/'+part+'/test/',
             test=True,
             test_dict=test_dict,
             input_size=[384,512]
@@ -142,9 +50,10 @@ def get_data_by_name(name):
 
 
 def full_test(sess, Decoded,
-    input, target15, target14, target13, target12, target11, target10, training):
+    input, target15, target14, target13, target12, target11, target10, training,
+    part='B'):
   print(">>> Test begins", end='.')
-  strict_test_names, test_dict = get_test_names()
+  strict_test_names, test_dict = get_test_names(part)
   for key in test_dict:
     test_dict[key]['predict'] = np.array([0.0]*6)
     test_dict[key]['truth'] = 0
