@@ -183,7 +183,7 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
   input_height, input_width = input_size
   prog = 0
   out_names = []
-  kernel = gaussian_kernel(shape=(24,24),sigma=10)
+  kernel = gaussian_kernel(shape=(48,48),sigma=10)
   kernel = np.reshape(kernel, kernel.shape+(1,1))
 
   graph_get_dmap = tf.Graph()

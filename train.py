@@ -9,10 +9,12 @@ import random
 from _functions import *
 from model import *
 from test import *
+from data import *
 
 tf.reset_default_graph()
 print("Initiating Tensors")
-graph = tf.Graph()
+with tf.device('/device:GPU:2'):
+  graph = tf.Graph()
 with graph.as_default():
   input = tf.placeholder( tf.float32, shape=[None, 384, 512, 3])
   target15 = tf.placeholder( tf.float32 , shape=(None, 1, 1, 1))
@@ -32,10 +34,6 @@ with graph.as_default():
 new_model = True
 batch_size = 8
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
-with open('train_names.pkl', 'rb') as f:
-    train_names = pickle.load(f)
-with open('test_names.pkl', 'rb') as f:
-    test_names = pickle.load(f)
 train_names, test_names = get_train_data_names(part='B')
 
 print("Training begins")
@@ -48,7 +46,7 @@ with tf.Session(graph=graph) as sess:
     train_MAEs = None
     test_MAEs = None
   else:
-    saver.restore(sess, tf.train.latest_checkpoint('./'))
+    saver.restore(sess, tf.train.latest_checkpoint('./model'))
 #     saver.restore(sess, './model-ccmv2sha-01042236')
 #     global_step = 9624
 #     EMA = 0
@@ -69,7 +67,7 @@ with tf.Session(graph=graph) as sess:
           target11: train_t11,
           target10: train_t10,
           training: True,
-          alpha: 1e-5,
+          alpha: 1e-7,
           dropout: random_dropout,
       })
       if EMA == 0:
@@ -154,5 +152,7 @@ with tf.Session(graph=graph) as sess:
       global_step = global_step + 1
   except KeyboardInterrupt:
     print('>>> KeyboardInterrupt. Saving model...')
-    saver.save(sess, "./model", global_step=global_step)
-    print(">>> Model saved")
+    saver.save(sess, "./model/model", global_step=global_step)
+    print(">>> Model saved: ", str(global_step))
+    logging.info('>>> KeyboardInterrupt. Saving model...')
+    logging.info(">>> Model saved: "+ str(global_step))

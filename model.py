@@ -25,10 +25,10 @@ def maxpool(kernel_size, input, strides=2):
   return tf.layers.max_pooling2d(input, kernel_size, strides, padding='same')
 def abs_loss(predict, target):
   loss = tf.losses.absolute_difference(target, predict, reduction=tf.losses.Reduction.NONE)
-  return tf.math.reduce_mean(loss)
+  return tf.reduce_mean(loss)
 def squared_loss(predict, target):
   loss = tf.losses.mean_squared_error(target, predict, reduction=tf.losses.Reduction.NONE)
-  return tf.math.reduce_mean(loss)
+  return tf.reduce_mean(loss)
 def encoder(input, training, dropout=0.3):
   # input: 384x512
   layer1 = conv(3, input, 64, name='vgg_conv_1')
