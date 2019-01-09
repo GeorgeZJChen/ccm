@@ -46,9 +46,10 @@ with tf.Session(graph=graph) as sess:
     train_MAEs = None
     test_MAEs = None
   else:
-    saver.restore(sess, tf.train.latest_checkpoint('./model'))
+    last_cp = tf.train.latest_checkpoint('./model')
+    saver.restore(sess, last_cp)
 #     saver.restore(sess, './model-ccmv2sha-01042236')
-#     global_step = 9624
+#     global_step = int(last_cp[last_cp.rfind('-')+1:])
 #     EMA = 0
 #     train_MAEs = None
 #     test_MAEs = None

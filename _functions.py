@@ -268,7 +268,7 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
       new_name = id_generator()
 
       img_i = imgs[i]
-      if random.random()>0.9:
+      if not test and random.random()>0.9:
         img_i = img_i.convert('L').convert('RGB')
       img_i.save(save_path + new_name + '.jpg', 'JPEG')
       with open(save_path + new_name + '.pkl', 'wb') as f:
