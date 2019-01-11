@@ -67,42 +67,52 @@ def encoder(input, training, dropout=0.3):
 def decoder(inputs, training, dropout):
   layer10, layer11, layer12, layer13, layer14, layer15 = inputs
 
-  out15 = conv(1, layer15, 1, act=None)
+  out15 = conv(1, layer15, 1)
   print('out15', out15.shape)
 
-  out14 = conv(1, layer14, 1, act=None)
+  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = tf.concat([layer, layer14], axis=3)
+  out14 = conv(1, layer, 1)
   print('out14', out14.shape)
 
-  layer = conv_t(4, layer14, 256, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = tf.concat([layer, layer14], axis=3)
+  layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
-  out13 = conv(1, layer, 1, act=None)
+  out13 = conv(1, layer, 1)
   print('out13', out13.shape)
 
-  layer = conv_t(4, layer14, 256, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = tf.concat([layer, layer14], axis=3)
+  layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
   layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer12], axis=3)
-  out12 = conv(1, layer, 1, act=None)
+  out12 = conv(1, layer, 1)
   print('out12', out12.shape)
 
-  layer = conv_t(4, layer14, 256, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = tf.concat([layer, layer14], axis=3)
+  layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
-  layer = conv_t(4, layer13, 256, dropout=dropout, training=training)
+  layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer12], axis=3)
   layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer11], axis=3)
-  out11 = conv(1, layer, 1, act=None)
+  out11 = conv(1, layer, 1)
   print('out11', out11.shape)
 
-  layer = conv_t(4, layer14, 256, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = tf.concat([layer, layer14], axis=3)
+  layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
-  layer = conv_t(4, layer13, 256, dropout=dropout, training=training)
+  layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer12], axis=3)
-  layer = conv_t(4, layer12, 256, dropout=dropout, training=training)
+  layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer11], axis=3)
   layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer10], axis=3)
-  out10 = conv(1, layer, 1, act=None)
+  out10 = conv(1, layer, 1)
   print('out10', out10.shape)
 
   return out15, out14, out13, out12, out11, out10
@@ -119,21 +129,21 @@ def model(input, targets, training, alpha, dropout=0.3):
   out15, out14, out13, out12, out11, out10 = Decoded
 
   loss = 0
-  loss += abs_loss(out15, target15) / 8 / 12 * 2
-  loss += abs_loss(out14, target14) / 8
-  loss += abs_loss(out13, target13) / 4
-  loss += abs_loss(out12, target12) * 1
-  loss += abs_loss(out11, target11) * 4
-  loss += abs_loss(out10, target10) * 16
+  loss += squared_loss(out15, target15) / 8**2  / 12**2 * 10
+  loss += squared_loss(out14, target14) / 8**2
+  loss += squared_loss(out13, target13) / 4**2
+  loss += squared_loss(out12, target12) * 1
+  loss += squared_loss(out11, target11) * 4**2
+  loss += squared_loss(out10, target10) * 16**2
 
-  L2_loss = tf.losses.get_regularization_loss() * 1e-4
+  L2_loss = tf.losses.get_regularization_loss() * 1e-6
 
   loss += L2_loss
 
   trainables = tf.trainable_variables()
 
-  train_vgg = tf.train.MomentumOptimizer(1e-7, 0.9).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
-  train_others = tf.train.MomentumOptimizer(alpha, 0.9).minimize(loss,
+  train_vgg = tf.train.MomentumOptimizer(1e-6, 0.9).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
+  train_others = tf.train.AdamOptimizer(alpha).minimize(loss,
                   var_list=[var for var in trainables if 'vgg' not in var.name])
   train = tf.group(train_vgg, train_others)
 

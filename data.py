@@ -8,7 +8,7 @@ from _functions import *
 
 
 def get_train_data_names(part):
-    if not (os.path.exists('./test_dict.pkl') and os.path.exists('./strict_test_names.pkl')):
+    if not (os.path.exists('./train_names.pkl') and os.path.exists('./test_names.pkl')):
         move_files('./datasets/shanghaitech/'+part+'/', part = part)
         tf.reset_default_graph()
         train_names = preprocess_data(

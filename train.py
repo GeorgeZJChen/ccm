@@ -11,30 +11,34 @@ from model import *
 from test import *
 from data import *
 
+import os
+os.environ['CUDA_VISIBLE_DEVICES']='1'
+
 tf.reset_default_graph()
 print("Initiating Tensors")
-with tf.device('/device:GPU:2'):
+# with tf.device('/device:GPU:1'):
+if True:
   graph = tf.Graph()
-with graph.as_default():
-  input = tf.placeholder( tf.float32, shape=[None, 384, 512, 3])
-  target15 = tf.placeholder( tf.float32 , shape=(None, 1, 1, 1))
-  target14 = tf.placeholder( tf.float32 , shape=(None, 3, 4, 1))
-  target13 = tf.placeholder( tf.float32 , shape=(None, 6, 8, 1))
-  target12 = tf.placeholder( tf.float32 , shape=(None, 12, 16, 1))
-  target11 = tf.placeholder( tf.float32 , shape=(None, 24, 32, 1))
-  target10 = tf.placeholder( tf.float32 , shape=(None, 48, 64, 1))
-  training = tf.placeholder( tf.bool )
-  dropout = tf.placeholder_with_default(tf.constant(0.3, tf.float32), shape=[])
-  alpha = tf.placeholder_with_default(tf.constant(1e-5, tf.float64), shape=[])
-  train, loss, Decoded, monitor = model(input, [target15, target14, target13, target12, target11, target10]
+  with graph.as_default():
+    input = tf.placeholder( tf.float32, shape=[None, 384, 512, 3])
+    target15 = tf.placeholder( tf.float32 , shape=(None, 1, 1, 1))
+    target14 = tf.placeholder( tf.float32 , shape=(None, 3, 4, 1))
+    target13 = tf.placeholder( tf.float32 , shape=(None, 6, 8, 1))
+    target12 = tf.placeholder( tf.float32 , shape=(None, 12, 16, 1))
+    target11 = tf.placeholder( tf.float32 , shape=(None, 24, 32, 1))
+    target10 = tf.placeholder( tf.float32 , shape=(None, 48, 64, 1))
+    training = tf.placeholder( tf.bool )
+    dropout = tf.placeholder_with_default(tf.constant(0.3, tf.float32), shape=[])
+    alpha = tf.placeholder_with_default(tf.constant(1e-5, tf.float64), shape=[])
+    train, loss, Decoded, monitor = model(input, [target15, target14, target13, target12, target11, target10]
                                                                        , training, alpha, dropout=dropout)
-  saver = tf.train.Saver(max_to_keep=4)
-  print('total number of parameters:', total_parameters())
+    saver = tf.train.Saver(max_to_keep=4)
+    print('total number of parameters:', total_parameters())
 
 new_model = True
 batch_size = 8
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
-train_names, test_names = get_train_data_names(part='B')
+train_names, test_names = get_train_data_names(part='A')
 
 print("Training begins")
 with tf.Session(graph=graph) as sess:
@@ -49,16 +53,16 @@ with tf.Session(graph=graph) as sess:
     last_cp = tf.train.latest_checkpoint('./model')
     saver.restore(sess, last_cp)
 #     saver.restore(sess, './model-ccmv2sha-01042236')
-#     global_step = int(last_cp[last_cp.rfind('-')+1:])
-#     EMA = 0
-#     train_MAEs = None
-#     test_MAEs = None
+    global_step = int(last_cp[last_cp.rfind('-')+1:])
+    EMA = 0
+    train_MAEs = None
+    test_MAEs = None
 
   try:
     for step in range(100000):
       train_inputs, train_targets = next_batch(batch_size, train_names)
       train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
-      random_dropout = random.random()*0.3
+      random_dropout = 0 # random.random()*0.3
       _ , train_loss = sess.run([train, loss], feed_dict={
           input: train_inputs,
           target15: train_t15,
@@ -68,7 +72,7 @@ with tf.Session(graph=graph) as sess:
           target11: train_t11,
           target10: train_t10,
           training: True,
-          alpha: 1e-7,
+          alpha: 1e-5,
           dropout: random_dropout,
       })
       if EMA == 0:
@@ -138,13 +142,13 @@ with tf.Session(graph=graph) as sess:
 
         if step%400==0:
 
-          saver.save(sess, "./model", global_step=global_step)
+          saver.save(sess, "./model/model", global_step=global_step)
           print(">>> Model saved:", global_step)
           logging.info(">>> Model saved: "+str(global_step))
 
           if global_step>=2000 or step==0:
             test_results = full_test(sess, Decoded,
-                input, target15, target14, target13, target12, target11, target10, training)
+                input, target15, target14, target13, target12, target11, target10, training, part='A')
             log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step),
                        '] || [Result]:', str([round(result, 2) for result in test_results])]
             print(*log_str)
@@ -154,6 +158,4 @@ with tf.Session(graph=graph) as sess:
   except KeyboardInterrupt:
     print('>>> KeyboardInterrupt. Saving model...')
     saver.save(sess, "./model/model", global_step=global_step)
-    print(">>> Model saved: ", str(global_step))
-    logging.info('>>> KeyboardInterrupt. Saving model...')
-    logging.info(">>> Model saved: "+ str(global_step))
+    print(">>> Model saved:", str(global_step))

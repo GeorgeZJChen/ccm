@@ -294,8 +294,8 @@ def set_pretrained(sess):
   torch_p_ids = [0, 2, 5, 7, 10, 12, 14, 17, 19, 21]
   trainables = tf.trainable_variables()
   for i in range(10):
-    tf_name_w = 'generator/vgg_conv_'+str(tf_p_ids[i])+'/kernel:0'
-    tf_name_b = 'generator/vgg_conv_'+str(tf_p_ids[i])+'/bias:0'
+    tf_name_w = 'vgg_conv_'+str(tf_p_ids[i])+'/kernel:0'
+    tf_name_b = 'vgg_conv_'+str(tf_p_ids[i])+'/bias:0'
 
     torch_name_w = 'features.'+str(torch_p_ids[i])+'.weight'
     torch_name_b = 'features.'+str(torch_p_ids[i])+'.bias'
@@ -352,47 +352,47 @@ def denormalize(img):
   img += [0.485, 0.456, 0.406]
   img *= 255
   return img.astype('uint8')
-# epoch = 0
-# batch_step = 0
-# def next_batch(batch_size, names, train=True):
-#   imgs = []
-#   targets15 = []
-#   targets14 = []
-#   targets13 = []
-#   targets12 = []
-#   targets11 = []
-#   targets10 = []
-#   global batch_step
-#   global epoch
-#   cb = batch_step
-#   if batch_step>=len(names):
-#     batch_step = 0
-#   if cb+batch_size > len(names):
-#     batch_step = cb + batch_size - len(names)
-#     _names = names[cb : len(names)] + names[0: batch_step ]
-#     random.shuffle(names)
-#     if train:
-#       epoch += 1
-#       print(time.asctime()+':  ', 'epoch', epoch, 'finished')
-#     else:
-#       print('________Test epoch finished________')
-#   else:
-#     _names = names[cb : cb+batch_size]
-#     batch_step = cb+batch_size
-#   for name in _names:
-#     imgs.append(np.asarray(Image.open(name+'.jpg')))
-#     target10, target11, target12, target13, target14 = pickle.load(open(name+'.pkl','rb'))
-#     targets15.append(np.reshape(np.sum(target14), [1,1,1]))
-#     targets14.append(target14)
-#     targets13.append(target13)
-#     targets12.append(target12)
-#     targets11.append(target11)
-#     targets10.append(target10)
-#
-#   targets = [targets15, targets14, targets13, targets12, targets11, targets10]
-#   return np.array(normalize(imgs)), targets
+epoch = 0
+batch_step = 0
+def next_batch(batch_size, names, train=True):
+  imgs = []
+  targets15 = []
+  targets14 = []
+  targets13 = []
+  targets12 = []
+  targets11 = []
+  targets10 = []
+  global batch_step
+  global epoch
+  cb = batch_step
+  if batch_step>=len(names):
+    batch_step = 0
+  if cb+batch_size > len(names):
+    batch_step = cb + batch_size - len(names)
+    _names = names[cb : len(names)] + names[0: batch_step ]
+    random.shuffle(names)
+    if train:
+      epoch += 1
+      print(time.asctime()+':  ', 'epoch', epoch, 'finished')
+    else:
+      print('________Test epoch finished________')
+  else:
+    _names = names[cb : cb+batch_size]
+    batch_step = cb+batch_size
+  for name in _names:
+    imgs.append(np.asarray(Image.open(name+'.jpg')))
+    target10, target11, target12, target13, target14 = pickle.load(open(name+'.pkl','rb'))
+    targets15.append(np.reshape(np.sum(target14), [1,1,1]))
+    targets14.append(target14)
+    targets13.append(target13)
+    targets12.append(target12)
+    targets11.append(target11)
+    targets10.append(target10)
+
+  targets = [targets15, targets14, targets13, targets12, targets11, targets10]
+  return np.array(normalize(imgs)), targets
 def next_batch(batch_size, names):
-    return next_batch_test(batch_size, names)
+  return next_batch_test(batch_size, names)
 def next_batch_test(batch_size, names):
   b = np.random.randint(0, len(names), [batch_size])
   _names = names[b]
