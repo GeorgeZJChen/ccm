@@ -7,7 +7,7 @@ rm -rf processed
 
 rm output/train.log
 
-echo 'This script does not empty models in ./model/'
+echo 'This script does not delete models in ./model/'
 
 
 

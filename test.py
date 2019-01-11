@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image, ImageOps
 import string
 import os
+import sys
 import random
 import time
 from tqdm import tqdm
@@ -84,6 +85,7 @@ def full_test(sess, Decoded,
 
     if step % (len(strict_test_names)//15) == 0:
         print('.', end='')
+        sys.stdout.flush()
   print()
 
   results = []

@@ -58,7 +58,7 @@ def encoder(input, training, dropout=0.3):
   layer13 = conv(3, layer13, 256, strides=1, dropout=dropout, training=training)
   print('13', layer13.shape) # 6x8  64
   layer14 = conv(3, layer13, 512, strides=2, dropout=dropout, training=training)
-  layer14 = conv(3, layer14, 512, strides=1, dropout=dropout, training=training)
+  layer14 = conv(3, layer14, 256, strides=1, dropout=dropout, training=training)
   print('14', layer14.shape) # 3x4  128
   layer15 = conv((3,4), layer14, 1024, padding='valid')
   print('15', layer15.shape) # 1  a
@@ -70,19 +70,19 @@ def decoder(inputs, training, dropout):
   out15 = conv(1, layer15, 1)
   print('out15', out15.shape)
 
-  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 256, padding='valid', strides=1, dropout=dropout, training=training)
   layer = tf.concat([layer, layer14], axis=3)
   out14 = conv(1, layer, 1)
   print('out14', out14.shape)
 
-  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 256, padding='valid', strides=1, dropout=dropout, training=training)
   layer = tf.concat([layer, layer14], axis=3)
   layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
   out13 = conv(1, layer, 1)
   print('out13', out13.shape)
 
-  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 256, padding='valid', strides=1, dropout=dropout, training=training)
   layer = tf.concat([layer, layer14], axis=3)
   layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
@@ -91,7 +91,7 @@ def decoder(inputs, training, dropout):
   out12 = conv(1, layer, 1)
   print('out12', out12.shape)
 
-  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 256, padding='valid', strides=1, dropout=dropout, training=training)
   layer = tf.concat([layer, layer14], axis=3)
   layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
@@ -102,7 +102,7 @@ def decoder(inputs, training, dropout):
   out11 = conv(1, layer, 1)
   print('out11', out11.shape)
 
-  layer = conv_t((3,4), layer15, 512, padding='valid', strides=1, dropout=dropout, training=training)
+  layer = conv_t((3,4), layer15, 256, padding='valid', strides=1, dropout=dropout, training=training)
   layer = tf.concat([layer, layer14], axis=3)
   layer = conv_t(4, layer, 256, dropout=dropout, training=training)
   layer = tf.concat([layer, layer13], axis=3)
