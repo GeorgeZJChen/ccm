@@ -38,6 +38,7 @@ if True:
 new_model = False
 batch_size = 4
 part = 'A'
+best_result = 200
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
 train_names, test_names = get_train_data_names(part=part)
@@ -153,6 +154,10 @@ with tf.Session(graph=graph) as sess:
                 input, target15, target14, target13, target12, target11, target10, training, part=part)
             log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step),
                        '] || [Result]:', str([round(result, 2) for result in test_results])]
+            if test_results[0] > best_result:
+              best_result = test_results[0]
+              saver.save(sess, "./best_model/model-"+str(round(best_result,2)), global_step=global_step)
+            log_str.append(' * BEST *')
             print(*log_str)
             logging.info(' '.join(log_str))
 

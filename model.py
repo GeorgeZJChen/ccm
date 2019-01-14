@@ -67,7 +67,7 @@ def encoder(input, training, dropout=0.3):
 def decoder(inputs, training, dropout):
   layer10, layer11, layer12, layer13, layer14, layer15 = inputs
 
-  out15 = conv(1, layer15, 1)
+  out15 = conv(1, layer15, 1, act=tf.nn.leaky_relu)
   print('out15', out15.shape)
 
   layer = conv_t((3,4), layer15, 256, padding='valid', strides=1, dropout=dropout, training=training)
@@ -129,8 +129,8 @@ def model(input, targets, training, alpha, dropout=0.3):
   out15, out14, out13, out12, out11, out10 = Decoded
 
   loss = 0
-  loss += abs_loss(out15, target15) / 8 / 12 * 10
-  loss += abs_loss(out14, target14) / 8
+  loss += abs_loss(out15, target15) / 16 / 12 * 10
+  loss += abs_loss(out14, target14) / 16 * 2
   loss += abs_loss(out13, target13) / 4
   loss += abs_loss(out12, target12) * 1
   loss += abs_loss(out11, target11) * 4
@@ -151,4 +151,3 @@ def model(input, targets, training, alpha, dropout=0.3):
 
   m = loss
   return train, loss, D, m
-
