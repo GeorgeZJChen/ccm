@@ -149,5 +149,5 @@ def model(input, targets, training, alpha, dropout=0.3):
 
   D = [tf.nn.relu(out) for out in Decoded]
 
-  m = loss
+  m = L2_loss
   return train, loss, D, m
