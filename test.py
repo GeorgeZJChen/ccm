@@ -4,8 +4,8 @@ import numpy as np
 from PIL import Image, ImageOps
 import string
 import os
-import sys
 import random
+import sys
 import time
 from tqdm import tqdm
 from scipy import io as scipy_io

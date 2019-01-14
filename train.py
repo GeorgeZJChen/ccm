@@ -12,11 +12,11 @@ from test import *
 from data import *
 
 import os
-os.environ['CUDA_VISIBLE_DEVICES']='1'
+os.environ['CUDA_VISIBLE_DEVICES']='2'
 
 tf.reset_default_graph()
 print("Initiating Tensors")
-# with tf.device('/device:GPU:1'):
+# with tf.device('/device:GPU:2'):
 if True:
   graph = tf.Graph()
   with graph.as_default():
@@ -32,13 +32,15 @@ if True:
     alpha = tf.placeholder_with_default(tf.constant(1e-5, tf.float64), shape=[])
     train, loss, Decoded, monitor = model(input, [target15, target14, target13, target12, target11, target10]
                                                                        , training, alpha, dropout=dropout)
-    saver = tf.train.Saver(max_to_keep=4)
+    saver = tf.train.Saver(max_to_keep=20)
     print('total number of parameters:', total_parameters())
 
-new_model = True
-batch_size = 8
+new_model = False
+batch_size = 4
+part = 'A'
+
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
-train_names, test_names = get_train_data_names(part='A')
+train_names, test_names = get_train_data_names(part=part)
 
 print("Training begins")
 with tf.Session(graph=graph) as sess:
@@ -72,7 +74,7 @@ with tf.Session(graph=graph) as sess:
           target11: train_t11,
           target10: train_t10,
           training: True,
-          alpha: 1e-5,
+          alpha: 1e-6,
           dropout: random_dropout,
       })
       if EMA == 0:
@@ -140,7 +142,7 @@ with tf.Session(graph=graph) as sess:
                                , test_t12[0], test_out11[0], test_t11[0], test_out10[0], test_t10[0]
                                , denormalize(test_inputs[0])], rows=3, size=2)
 
-        if step%400==0:
+        if step%200==0:
 
           saver.save(sess, "./model/model", global_step=global_step)
           print(">>> Model saved:", global_step)
@@ -148,7 +150,7 @@ with tf.Session(graph=graph) as sess:
 
           if global_step>=2000 or step==0:
             test_results = full_test(sess, Decoded,
-                input, target15, target14, target13, target12, target11, target10, training, part='A')
+                input, target15, target14, target13, target12, target11, target10, training, part=part)
             log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step),
                        '] || [Result]:', str([round(result, 2) for result in test_results])]
             print(*log_str)

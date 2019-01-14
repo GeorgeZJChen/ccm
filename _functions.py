@@ -60,7 +60,6 @@ def display_set_of_imgs(images, rows=2, size=0.5, name='0'):
   n_images = len(images)
   with open('./output/images/'+str(name)+'-'+id_generator(5)+'.pkl', 'wb') as f:
       pickle.dump(images, f)
-
   # fig = plt.figure()
   # plt.axis('off')
   # for n, image in enumerate(images):
@@ -306,7 +305,6 @@ def set_pretrained(sess):
     var_b = [v for v in trainables if v.name == tf_name_b ][0]
     sess.run(tf.assign(var_b, torch_dict[torch_name_b].data.numpy()))
 #   test_set_pretrained('CAC/vgg_conv_10/kernel:0', 'features.21.weight', torch_dict)
-
 def test_set_pretrained(tf_name, torch_name, torch_dict):
   def check_equal4d(a, b):
     for m in range(a.shape[0]):
@@ -332,7 +330,6 @@ def test_set_pretrained(tf_name, torch_name, torch_dict):
   else:
     torch_data = np.transpose(torch_data, (2,3,1,0))
     assert check_equal4d(tf_data, torch_data)
-
 def moving_average(new_val, last_avg, theta=0.95):
   return round((1-theta) * new_val + theta* last_avg, 2)
 def moving_average_array(new_vals, last_avgs, theta=0.95):
@@ -352,48 +349,9 @@ def denormalize(img):
   img += [0.485, 0.456, 0.406]
   img *= 255
   return img.astype('uint8')
-epoch = 0
-batch_step = 0
-def next_batch(batch_size, names, train=True):
-  imgs = []
-  targets15 = []
-  targets14 = []
-  targets13 = []
-  targets12 = []
-  targets11 = []
-  targets10 = []
-  global batch_step
-  global epoch
-  cb = batch_step
-  if batch_step>=len(names):
-    batch_step = 0
-  if cb+batch_size > len(names):
-    batch_step = cb + batch_size - len(names)
-    _names = names[cb : len(names)] + names[0: batch_step ]
-    random.shuffle(names)
-    if train:
-      epoch += 1
-      print(time.asctime()+':  ', 'epoch', epoch, 'finished')
-    else:
-      print('________Test epoch finished________')
-  else:
-    _names = names[cb : cb+batch_size]
-    batch_step = cb+batch_size
-  for name in _names:
-    imgs.append(np.asarray(Image.open(name+'.jpg')))
-    target10, target11, target12, target13, target14 = pickle.load(open(name+'.pkl','rb'))
-    targets15.append(np.reshape(np.sum(target14), [1,1,1]))
-    targets14.append(target14)
-    targets13.append(target13)
-    targets12.append(target12)
-    targets11.append(target11)
-    targets10.append(target10)
-
-  targets = [targets15, targets14, targets13, targets12, targets11, targets10]
-  return np.array(normalize(imgs)), targets
-def next_batch(batch_size, names):
-  return next_batch_test(batch_size, names)
 def next_batch_test(batch_size, names):
+  return next_batch(batch_size, names)
+def next_batch(batch_size, names):
   b = np.random.randint(0, len(names), [batch_size])
   _names = names[b]
 
