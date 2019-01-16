@@ -14,7 +14,7 @@ def get_train_data_names(part):
         train_names = preprocess_data(
             names=load_data_names(train=True, part= part),
             data_path='./datasets/shanghaitech/'+part+'/train/',
-            random_crop=20,
+            random_crop=30,
             input_size=[384,512]
         )
         random.shuffle(train_names)

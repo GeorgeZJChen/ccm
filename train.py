@@ -12,7 +12,7 @@ from test import *
 from data import *
 
 import os
-os.environ['CUDA_VISIBLE_DEVICES']='2'
+os.environ['CUDA_VISIBLE_DEVICES']='0'
 
 tf.reset_default_graph()
 print("Initiating Tensors")
@@ -32,10 +32,11 @@ if True:
     alpha = tf.placeholder_with_default(tf.constant(1e-5, tf.float64), shape=[])
     train, loss, Decoded, monitor = model(input, [target15, target14, target13, target12, target11, target10]
                                                                        , training, alpha, dropout=dropout)
-    saver = tf.train.Saver(max_to_keep=20)
+    saver = tf.train.Saver(max_to_keep=10)
+    best_saver = tf.train.Saver(max_to_keep=1)
     print('total number of parameters:', total_parameters())
 
-new_model = False
+new_model = True
 batch_size = 4
 part = 'A'
 best_result = 200
@@ -62,10 +63,22 @@ with tf.Session(graph=graph) as sess:
     test_MAEs = None
 
   try:
-    for step in range(100000):
+    for step in range(200000):
+      if step < 50000:
+        lr = 1e-4
+      elif step < 100000:
+        lr = 1e-5
+      elif step < 150000:
+        lr = 1e-6
+      elif step < 200000:
+        lr = 1e-7
+
+      if step%50000==0 and not step==0:
+        best_saver.restore(sess, tf.train.latest_checkpoint('./best_model/'))
+
       train_inputs, train_targets = next_batch(batch_size, train_names)
       train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
-      random_dropout = 0 # random.random()*0.3
+      random_dropout = random.random()*0.3
       _ , train_loss = sess.run([train, loss], feed_dict={
           input: train_inputs,
           target15: train_t15,
@@ -75,7 +88,7 @@ with tf.Session(graph=graph) as sess:
           target11: train_t11,
           target10: train_t10,
           training: True,
-          alpha: 1e-6,
+          alpha: lr,
           dropout: random_dropout,
       })
       if EMA == 0:
@@ -154,9 +167,9 @@ with tf.Session(graph=graph) as sess:
                 input, target15, target14, target13, target12, target11, target10, training, part=part)
             log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step),
                        '] || [Result]:', str([round(result, 2) for result in test_results])]
-            if test_results[0] > best_result:
-              best_result = test_results[0]
-              saver.save(sess, "./best_model/model-"+str(round(best_result,2)), global_step=global_step)
+            if round(test_results[0],2) < best_result:
+              best_result = round(test_results[0],2)
+              best_saver.save(sess, "./best_model/model-"+str(best_result))
             log_str.append(' * BEST *')
             print(*log_str)
             logging.info(' '.join(log_str))

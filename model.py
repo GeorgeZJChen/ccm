@@ -136,13 +136,13 @@ def model(input, targets, training, alpha, dropout=0.3):
   loss += abs_loss(out11, target11) * 4
   loss += abs_loss(out10, target10) * 16
 
-  L2_loss = 0 # tf.losses.get_regularization_loss() * 1e-7
+  L2_loss = tf.losses.get_regularization_loss() * 1e-4
 
   loss += L2_loss
 
   trainables = tf.trainable_variables()
 
-  train_vgg = tf.train.MomentumOptimizer(alpha/10, 0.9).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
+  train_vgg = tf.train.MomentumOptimizer(tf.maximum(alpha/10, 1e-7), 0.9).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
   train_others = tf.train.MomentumOptimizer(alpha, 0.9).minimize(loss,
                   var_list=[var for var in trainables if 'vgg' not in var.name])
   train = tf.group(train_vgg, train_others)
