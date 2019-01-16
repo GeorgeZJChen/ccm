@@ -177,8 +177,8 @@ with tf.Session(graph=graph) as sess:
               best_result = round(test_results[0],2)
               best_saver.save(sess, "./best_model/model-"+str(best_result))
               log_str.append(' * BEST *')
-              print(*log_str)
-              logging.info(' '.join(log_str))
+            print(*log_str)
+            logging.info(' '.join(log_str))
 
       global_step = global_step + 1
   except KeyboardInterrupt:
