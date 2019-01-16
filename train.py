@@ -11,6 +11,12 @@ from model import *
 from test import *
 from data import *
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('resume', nargs='?', default='0')
+args = parser.parse_args()
+
 import os
 os.environ['CUDA_VISIBLE_DEVICES']='0'
 
@@ -36,7 +42,7 @@ if True:
     best_saver = tf.train.Saver(max_to_keep=1)
     print('total number of parameters:', total_parameters())
 
-new_model = True
+new_model = args.resume!='1'
 batch_size = 4
 part = 'A'
 best_result = 200
@@ -63,7 +69,7 @@ with tf.Session(graph=graph) as sess:
     test_MAEs = None
 
   try:
-    for step in range(200000):
+    for step in range(global_step, 200000):
       if step < 50000:
         lr = 1e-4
       elif step < 100000:
