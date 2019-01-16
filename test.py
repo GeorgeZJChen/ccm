@@ -14,7 +14,7 @@ import pickle
 import h5py
 import cv2
 
-from _functions import *
+from functions import *
 from model import *
 
 def get_test_names(part='B'):

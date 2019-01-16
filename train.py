@@ -6,7 +6,7 @@ import logging
 import pickle
 import random
 
-from _functions import *
+from functions import *
 from model import *
 from test import *
 from data import *

@@ -4,7 +4,7 @@ import os
 import random
 import pickle
 
-from _functions import *
+from functions import *
 
 
 def get_train_data_names(part):

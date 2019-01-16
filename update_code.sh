@@ -1,0 +1,11 @@
+sh clean.sh
+rm functions.py
+rm data.py
+rm model.py
+rm test.py
+rm train.py
+wget https://georgezjchen.github.io/ccm/functions.py
+wget https://georgezjchen.github.io/ccm/data.py
+wget https://georgezjchen.github.io/ccm/model.py
+wget https://georgezjchen.github.io/ccm/test.py
+wget https://georgezjchen.github.io/ccm/train.py
