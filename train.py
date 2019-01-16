@@ -43,7 +43,7 @@ if True:
     print('total number of parameters:', total_parameters())
 
 new_model = args.resume!='1'
-batch_size = 4
+batch_size = 3
 part = 'A'
 best_result = 200
 
