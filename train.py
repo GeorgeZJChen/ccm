@@ -162,13 +162,13 @@ with tf.Session(graph=graph) as sess:
                                , test_t12[0], test_out11[0], test_t11[0], test_out10[0], test_t10[0]
                                , denormalize(test_inputs[0])], rows=3, size=2)
 
-        if step%200==0:
+        if step%800==0:
 
           saver.save(sess, "./model/model", global_step=global_step)
           print(">>> Model saved:", global_step)
           logging.info(">>> Model saved: "+str(global_step))
 
-          if global_step>=2000 or step==0:
+          if global_step>=3200 or step==0:
             test_results = full_test(sess, Decoded,
                 input, target15, target14, target13, target12, target11, target10, training, part=part)
             log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step),
