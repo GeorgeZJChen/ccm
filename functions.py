@@ -242,9 +242,6 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
           dmaps.append(ddmaps_mirrored)
 
     if random_crop is not None and not (rows==1 and columns==1) and not test:
-      dmap = sess_get_dmap.run(tf_dmap, feed_dict={
-          tf_coords_map_p: coords_map
-      })
       for b in range(random_crop):
 
         crop_top = 0 if rows==1 else np.random.randint(0, resized_height - input_height)
