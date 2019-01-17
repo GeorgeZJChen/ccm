@@ -38,12 +38,12 @@ if True:
     alpha = tf.placeholder_with_default(tf.constant(1e-5, tf.float64), shape=[])
     train, loss, Decoded, monitor = model(input, [target15, target14, target13, target12, target11, target10]
                                                                        , training, alpha, dropout=dropout)
-    saver = tf.train.Saver(max_to_keep=10)
+    saver = tf.train.Saver(max_to_keep=2)
     best_saver = tf.train.Saver(max_to_keep=1)
     print('total number of parameters:', total_parameters())
 
 new_model = args.resume!='1'
-batch_size = 3
+batch_size = 16
 part = 'A'
 best_result = 200
 
@@ -69,14 +69,14 @@ with tf.Session(graph=graph) as sess:
     test_MAEs = None
 
   try:
-    for step in range(global_step, 200000):
-      if step < 50000:
+    for step in range(global_step, 100000):
+      if step < 25000:
         lr = 1e-4
-      elif step < 100000:
+      elif step < 50000:
         lr = 1e-5
-      elif step < 150000:
+      elif step < 75000:
         lr = 1e-6
-      elif step < 200000:
+      elif step < 100000:
         lr = 1e-7
 
       if step%50000==0 and not step==0:
