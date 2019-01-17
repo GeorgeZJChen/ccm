@@ -79,7 +79,7 @@ with tf.Session(graph=graph) as sess:
       elif step < 100000:
         lr = 1e-7
 
-      if step%50000==0 and not step==0:
+      if step%25000==0 and not step==0:
         best_saver.restore(sess, tf.train.latest_checkpoint('./best_model/'))
 
       train_inputs, train_targets = next_batch(batch_size, train_names)
