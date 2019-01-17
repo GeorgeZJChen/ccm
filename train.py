@@ -168,7 +168,7 @@ with tf.Session(graph=graph) as sess:
           print(">>> Model saved:", global_step)
           logging.info(">>> Model saved: "+str(global_step))
 
-          if global_step>=3200 or step==0:
+          if global_step>=2000 or step==0:
             test_results = full_test(sess, Decoded,
                 input, target15, target14, target13, target12, target11, target10, training, part=part)
             log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step),
