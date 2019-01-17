@@ -136,7 +136,7 @@ def model(input, targets, training, alpha, dropout=0.3):
   loss += abs_loss(out11, target11) * 4
   loss += abs_loss(out10, target10) * 16
 
-  L2_loss = tf.losses.get_regularization_loss() * 1e-4
+  L2_loss = 0 #tf.losses.get_regularization_loss() * 1e-4
 
   loss += L2_loss
 
