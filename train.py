@@ -21,7 +21,7 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES']='0'
 
 tf.reset_default_graph()
-print("Initiating Tensors")
+print("Initialising Tensors")
 # with tf.device('/device:GPU:2'):
 if True:
   graph = tf.Graph()
