@@ -142,7 +142,7 @@ def model(input, targets, training, alpha, dropout=0.3):
 
   trainables = tf.trainable_variables()
 
-  train_vgg = tf.train.MomentumOptimizer(tf.maximum(alpha/10, 1e-7), 0.9).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
+  train_vgg = tf.train.MomentumOptimizer(tf.maximum(alpha/2, 1e-7), 0.9).minimize(loss, var_list=[var for var in trainables if 'vgg' in var.name])
   train_others = tf.train.MomentumOptimizer(alpha, 0.9).minimize(loss,
                   var_list=[var for var in trainables if 'vgg' not in var.name])
   train = tf.group(train_vgg, train_others)

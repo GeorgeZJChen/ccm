@@ -69,22 +69,22 @@ with tf.Session(graph=graph) as sess:
     test_MAEs = None
 
   try:
-    for step in range(global_step, 100000):
-      if step < 25000:
+    for step in range(global_step, 150000):
+      if step < 50000:
         lr = 1e-4
-      elif step < 50000:
-        lr = 1e-5
-      elif step < 75000:
-        lr = 1e-6
       elif step < 100000:
-        lr = 1e-7
+        lr = 5e-5
+      elif step < 125000:
+        lr = 1e-5
+      else:
+        lr = 1e-6
 
       if step%25000==0 and not step==0:
         best_saver.restore(sess, tf.train.latest_checkpoint('./best_model/'))
 
       train_inputs, train_targets = next_batch(batch_size, train_names)
       train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
-      random_dropout = 0 #random.random()*0.3
+      random_dropout = random.random()*0.3
       _ , train_loss = sess.run([train, loss], feed_dict={
           input: train_inputs,
           target15: train_t15,
