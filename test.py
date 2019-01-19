@@ -76,7 +76,6 @@ def full_test(sess, Decoded,
     })
 
     out15, out14, out13, out12, out11, out10 = test_D
-    predict = np.sum(out15)
     data_name = test_dict['names_to_name'][test_name_strict]
     test_dict[data_name]['predict'] += np.array([np.sum(out15),np.sum(out14),np.sum(out13),np.sum(out12),np.sum(out11),np.sum(out10)])
     test_dict[data_name]['truth'] += np.sum(test_t15)
