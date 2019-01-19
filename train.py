@@ -162,7 +162,7 @@ with tf.Session(graph=graph) as sess:
                                , test_t12[0], test_out11[0], test_t11[0], test_out10[0], test_t10[0]
                                , denormalize(test_inputs[0])], rows=3, size=2)
 
-        if step%400==0:
+        if step%100==0:
 
           saver.save(sess, "./model/model", global_step=global_step)
           print(">>> Model saved:", global_step)
