@@ -153,19 +153,6 @@ def get_coords_map(coords, resize, img_size):
   for coord in new_coords:
     coords_map[0][int(coord[1])][int(coord[0])][0] += 1
   return coords_map
-def get_resized_image_and_density_map(img, coords_map, kernel, resize):
-  img_shape = img.get_shape().as_list()
-  img_height, img_width = img_shape[1], img_shape[2]
-  resized_height, resized_width = resize
-
-  with tf.device('/gpu:0'):
-    coords_map = tf.constant(coords_map, dtype=tf.float32)
-    density_map = tf.nn.conv2d(coords_map, kernel, strides=(1,1,1,1), padding='SAME')
-
-  img_height, img_width = img.shape[0], img.shape[1]
-  img = tf.image.resize_images(img, [resized_height, resized_width])
-  img = tf.cast(img, tf.uint8)
-  return img, density_map
 
 def preprocess_data(names, data_path, save_path='./processed', random_crop=None, input_size=[384, 512]
                     , test=False, test_dict=None):
@@ -303,30 +290,20 @@ def set_pretrained(sess):
     sess.run(tf.assign(var_b, torch_dict[torch_name_b].data.numpy()))
 #   test_set_pretrained('CAC/vgg_conv_10/kernel:0', 'features.21.weight', torch_dict)
 def test_set_pretrained(tf_name, torch_name, torch_dict):
-  def check_equal4d(a, b):
-    for m in range(a.shape[0]):
-      for n in range(a.shape[1]):
-        for h in range(a.shape[2]):
-          for w in range(a.shape[3]):
-            if abs(a[m][n][h][w] - b[m][n][h][w])>0.00001:
-              print(a[m][n][h][w], b[m][n][h][w])
-              print('at',m,n,h,w)
-              return False
-    return True
-  def check_equal1d(a, b):
-    for m in range(a.shape[0]):
-      if abs(a[m] - b[m])>0.00001:
-        print(a[m], b[m])
-        print('at', m)
+  def check_equal(a, b):
+    a = a.flatten()
+    b = b.flatten()
+    if len(a) != len(b):
+        print('inequivalent length:', len(a), '!=', len(b))
         return False
+    for m in range(len(a)):
+        if abs(a[m]-b[m]) > 0.000001:
+            print(a[m], '!=', b[m], 'at', m)
+            return False
     return True
   tf_data = [v for v in tf.trainable_variables() if v.name ==tf_name][0].read_value().eval()
   torch_data = torch_dict[torch_name].data.numpy()
-  if len(tf_data.shape) == 1:
-    assert check_equal1d(tf_data, torch_data)
-  else:
-    torch_data = np.transpose(torch_data, (2,3,1,0))
-    assert check_equal4d(tf_data, torch_data)
+  assert check_equal(tf_data, torch_data)
 def moving_average(new_val, last_avg, theta=0.95):
   return round((1-theta) * new_val + theta* last_avg, 2)
 def moving_average_array(new_vals, last_avgs, theta=0.95):
