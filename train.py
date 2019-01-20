@@ -1,9 +1,7 @@
 from __future__ import print_function, division
 import tensorflow as tf
-import numpy as np
 import time
 import logging
-import pickle
 import random
 
 from functions import *
@@ -48,7 +46,7 @@ part = 'A'
 best_result = 200
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
-train_names, test_names = get_train_data_names(part=part)
+train_names, test_names = get_data_names(part=part)
 
 print("Training begins")
 with tf.Session(graph=graph) as sess:

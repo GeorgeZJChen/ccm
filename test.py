@@ -2,17 +2,11 @@ from __future__ import print_function, division
 import tensorflow as tf
 import numpy as np
 from PIL import Image, ImageOps
-import string
 import os
 import random
 import sys
 import time
-from tqdm import tqdm
-from scipy import io as scipy_io
-import math
 import pickle
-import h5py
-import cv2
 
 from functions import *
 from model import *
