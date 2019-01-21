@@ -41,7 +41,7 @@ if True:
     print('total number of parameters:', total_parameters())
 
 new_model = args.resume!='1'
-batch_size = 12
+batch_size = 8
 part = 'A'
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
