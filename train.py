@@ -71,13 +71,13 @@ with tf.Session(graph=graph) as sess:
   try:
     for step in range(global_step, 150000):
       if step < 50000:
-        lr = 1e-4
-      elif step < 100000:
-        lr = 5e-5
-      elif step < 125000:
         lr = 1e-5
-      else:
+      elif step < 100000:
+        lr = 5e-6
+      elif step < 125000:
         lr = 1e-6
+      else:
+        lr = 1e-7
 
       if step%25000==0 and not step==0:
         best_saver.restore(sess, tf.train.latest_checkpoint('./best_model/'))
