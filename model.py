@@ -59,7 +59,7 @@ def encoder(input, training, dropout=0.3):
   layer14 = conv(3, layer13, 512, strides=2, dropout=dropout, training=training, act=tf.nn.leaky_relu)
   layer14 = conv(3, layer14, 256, strides=1, dropout=dropout, training=training, act=tf.nn.leaky_relu)
   print('14', layer14.shape) # 3x4  128
-  layer15 = conv((3,4), layer14, 1024, padding='valid', act=tf.nn.leaky_relu)
+  layer15 = conv((3,4), layer14, 1024, padding='valid', dropout=dropout, training=training, act=tf.nn.leaky_relu)
   print('15', layer15.shape) # 1  a
 
   return layer10, layer11, layer12, layer13, layer14, layer15
@@ -128,14 +128,14 @@ def model(input, targets, training, alpha, dropout=0.3):
   out15, out14, out13, out12, out11, out10 = Decoded
 
   loss = 0
-  loss += abs_loss(out15, target15) / 16 / 12 * 10
+  loss += abs_loss(out15, target15) / 16 / 12 * 16
   loss += abs_loss(out14, target14) / 16 * 2
   loss += abs_loss(out13, target13) / 4
   loss += abs_loss(out12, target12) * 1
   loss += abs_loss(out11, target11) * 4
   loss += abs_loss(out10, target10) * 16
 
-  L2_loss = tf.losses.get_regularization_loss() * 1e-4
+  L2_loss = tf.losses.get_regularization_loss() * 1e-3
 
   loss += L2_loss
 
