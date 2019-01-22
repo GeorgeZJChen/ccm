@@ -66,7 +66,7 @@ with tf.Session(graph=graph) as sess:
     train_MAEs = None
     test_MAEs = None
     best_result = tf.train.latest_checkpoint('./best_model')
-    best_result = int(best_result[best_result.rfind('-')+1:])
+    best_result = float(best_result[best_result.rfind('-')+1:])
 
   try:
     for step in range(global_step, 150000):
