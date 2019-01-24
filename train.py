@@ -42,7 +42,7 @@ if True:
 
 new_model = args.resume!='1'
 batch_size = 8
-part = 'A'
+part = 'B'
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
 train_names, test_names = get_data_names(part=part)
@@ -71,20 +71,20 @@ with tf.Session(graph=graph) as sess:
   try:
     for step in range(global_step, 150000):
       if step < 50000:
-        lr = 1e-5
+        lr = 1e-4
       elif step < 100000:
-        lr = 5e-6
+        lr = 5e-5
       elif step < 125000:
-        lr = 1e-6
+        lr = 1e-5
       else:
-        lr = 1e-7
+        lr = 1e-6
 
       if step%25000==0 and not step==0:
         best_saver.restore(sess, tf.train.latest_checkpoint('./best_model/'))
 
       train_inputs, train_targets = next_batch(batch_size, train_names)
       train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
-      random_dropout = 0.3
+      random_dropout = 0
       _ , train_loss = sess.run([train, loss], feed_dict={
           input: train_inputs,
           target15: train_t15,
