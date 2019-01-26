@@ -169,7 +169,8 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
   input_height, input_width = input_size
   prog = 0
   out_names = []
-  kernel = gaussian_kernel(shape=(48,48),sigma=10)
+  kernel_size = 49
+  kernel = gaussian_kernel(shape=(kernel_size,kernel_size),sigma=10)
   kernel = np.reshape(kernel, kernel.shape+(1,1))
 
   graph_get_dmap = tf.Graph()
@@ -187,6 +188,7 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
     tf_ddmaps = get_downsized_density_maps(tf_dmap_p)
 
   sess_get_dmap = tf.Session(graph=graph_get_dmap)
+  img = img.convert('RGB')
   sess_get_downsized_dmaps = tf.Session(graph=graph_get_downsized_dmaps)
 
   for ni in tqdm(range(len(names))):
@@ -195,7 +197,6 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
     img, coords = load_data_ShanghaiTech(name)
 
     if img.mode !='RGB':
-      img = img.convert('RGB')
     img_width, img_height = img.size
 
     imgs = []
