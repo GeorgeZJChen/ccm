@@ -28,6 +28,8 @@ def abs_loss(predict, target):
 def squared_loss(predict, target):
   loss = tf.losses.mean_squared_error(target, predict, reduction=tf.losses.Reduction.NONE)
   return tf.reduce_mean(loss)
+def pdims(tensor):
+  return np.prod(tensor.get_shape().as_list()[1:])
 def encoder(input, training, dropout=0.3):
   # input: 384x512
   layer1 = conv(3, input, 64, name='vgg_conv_1')
@@ -128,12 +130,12 @@ def model(input, targets, training, alpha, dropout=0.3):
   out15, out14, out13, out12, out11, out10 = Decoded
 
   loss = 0
-  loss += abs_loss(out15, target15) / 16 / 12 * 16
-  loss += abs_loss(out14, target14) / 16 * 2
-  loss += abs_loss(out13, target13) / 4
-  loss += abs_loss(out12, target12) * 1
-  loss += abs_loss(out11, target11) * 4
-  loss += abs_loss(out10, target10) * 16
+  loss += abs_loss(out15, target15) * pdims(out15)
+  loss += abs_loss(out14, target14) * pdims(out14)
+  loss += abs_loss(out13, target13) * pdims(out13)
+  loss += abs_loss(out12, target12) * pdims(out12)
+  loss += abs_loss(out11, target11) * pdims(out11)
+  loss += abs_loss(out10, target10) * pdims(out10)
 
   L2_loss = tf.losses.get_regularization_loss() * 1e-3
 
