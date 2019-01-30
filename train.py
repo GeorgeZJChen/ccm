@@ -45,7 +45,7 @@ batch_size = 8
 part = 'B'
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
-train_names, test_names = get_data_names(part=part)
+train_names, test_names = get_data_names(part=part, negatives=True)
 
 print("Training begins")
 with tf.Session(graph=graph) as sess:
