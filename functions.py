@@ -148,7 +148,6 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
     tf_ddmaps = get_downsized_density_maps(tf_dmap_p)
 
   sess_get_dmap = tf.Session(graph=graph_get_dmap)
-  img = img.convert('RGB')
   sess_get_downsized_dmaps = tf.Session(graph=graph_get_downsized_dmaps)
 
   for ni in tqdm(range(len(names))):
