@@ -35,7 +35,7 @@ def display_set_of_imgs(images, rows=2, size=0.5, name='0'):
   #       plt.imshow(image)
   # fig.set_size_inches(np.array(fig.get_size_inches()) * size)
   # plt.show()
-def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
+def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
   return ''.join(random.choice(chars) for _ in range(size))
 def total_parameters(scope=None):
   total_parameters = 0
