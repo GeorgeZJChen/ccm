@@ -10,6 +10,7 @@ import pickle
 
 from functions import *
 from model import *
+from data import *
 
 def get_test_names(part='B'):
     if not (os.path.exists('./test_dict.pkl') and os.path.exists('./strict_test_names.pkl')):
