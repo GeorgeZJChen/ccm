@@ -30,9 +30,9 @@ def get_data_names(part, negatives=False):
             )
             print(len(train_names), 'of positive images')
             print(len(negative_names), 'of negative images')
-            if len(negative_names) > len(train_names):
+            if len(negative_names) > len(train_names)//2:
                 random.shuffle(negative_names)
-                negative_names = negative_names[:len(train_names)]
+                negative_names = negative_names[:len(train_names)//2]
             train_names += negative_names
         random.shuffle(train_names)
         print()
