@@ -15,47 +15,6 @@ import pickle
 import h5py
 import cv2
 
-def move_files(path_to_load, part='A'):
-  if not path_to_load.endswith('/'):
-    path_to_load += '/'
-  train_ptl = path_to_load + 'train/'
-  test_ptl = path_to_load + 'test/'
-
-  if not os.path.exists(train_ptl):
-    os.makedirs(train_ptl)
-  if not os.path.exists(test_ptl):
-    os.makedirs(test_ptl)
-  for _, _, files in os.walk("./shanghaitech/part_"+part+"_final/train_data/ground_truth"):
-    for filename in files:
-      if '.mat' in filename:
-        new_name = filename.replace('GT_','')
-        os.rename("./shanghaitech/part_"+part+"_final/train_data/ground_truth/"+filename, train_ptl + new_name)
-        os.rename("./shanghaitech/part_"+part+"_final/train_data/images/"+new_name.replace('.mat','.jpg'), train_ptl + new_name.replace('.mat','.jpg'))
-  for _, _, files in os.walk("./shanghaitech/part_"+part+"_final/test_data/ground_truth"):
-    for filename in files:
-      if '.mat' in filename:
-        new_name = filename.replace('GT_','')
-        os.rename("./shanghaitech/part_"+part+"_final/test_data/ground_truth/"+filename, test_ptl + new_name)
-        os.rename("./shanghaitech/part_"+part+"_final/test_data/images/"+new_name.replace('.mat','.jpg'), test_ptl + new_name.replace('.mat','.jpg'))
-
-def load_data_names(train=True, part='A'):
-  names = []
-  if train:
-    for _, _, files in os.walk('./datasets/shanghaitech/'+part+'/train/'):
-      for filename in files:
-        if '.mat' in filename:
-          names.append(filename.replace('.mat',''))
-  else:
-    pass
-    for _, _, files in os.walk('./datasets/shanghaitech/'+part+'/test'):
-        for filename in files:
-          if '.jpg' in filename:
-            names.append(filename.replace('.jpg',''))
-  return names
-def load_data_ShanghaiTech(path):
-  img = Image.open(path+'.jpg')
-  coords = scipy_io.loadmat(path+'.mat')['image_info'][0][0][0][0][0]
-  return img, coords
 def display_set_of_imgs(images, rows=2, size=0.5, name='0'):
   n_images = len(images)
   with open('./output/images/'+str(name)+'-'+id_generator(5)+'.pkl', 'wb') as f:
@@ -154,8 +113,9 @@ def get_coords_map(coords, resize, img_size):
     coords_map[0][int(coord[1])][int(coord[0])][0] += 1
   return coords_map
 
-def preprocess_data(names, data_path, save_path='./processed', random_crop=None, input_size=[384, 512]
-                    , test=False, test_dict=None):
+def preprocess_data(names, data_path, save_path='./processed', random_crop=None, divide=True, input_size=[384, 512]
+                    , test=False, test_dict=None, load_data_fn=None):
+  assert load_data_fn is not None and hasattr(load_data_fn, '__call__'), 'a function for loading image and coordinates must be given'
   if not data_path.endswith('/'):
     data_path += '/'
   if not save_path.endswith('/'):
@@ -194,7 +154,7 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
   for ni in tqdm(range(len(names))):
     name = data_path +  names[ni]
 
-    img, coords = load_data_ShanghaiTech(name)
+    img, coords = load_data_fn(name)
 
     if img.mode !='RGB':
     img_width, img_height = img.size
@@ -211,23 +171,24 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
     dmap = sess_get_dmap.run(tf_dmap, feed_dict={
         tf_coords_map_p: coords_map
     })
-    for row in range(rows):
-      for col in range(columns):
-        crop_top = input_height*row
-        crop_left = input_width*col
-        crop_bottom = crop_top + input_height
-        crop_right = crop_left + input_width
-        img_crop = new_img.crop((crop_left, crop_top, crop_right, crop_bottom))
+    if divide:
+        for row in range(rows):
+          for col in range(columns):
+            crop_top = input_height*row
+            crop_left = input_width*col
+            crop_bottom = crop_top + input_height
+            crop_right = crop_left + input_width
+            img_crop = new_img.crop((crop_left, crop_top, crop_right, crop_bottom))
 
-        ddmaps, ddmaps_mirrored = sess_get_downsized_dmaps.run(tf_ddmaps, feed_dict={
-            tf_dmap_p: dmap[:, crop_top:crop_bottom, crop_left:crop_right]
-        })
+            ddmaps, ddmaps_mirrored = sess_get_downsized_dmaps.run(tf_ddmaps, feed_dict={
+                tf_dmap_p: dmap[:, crop_top:crop_bottom, crop_left:crop_right]
+            })
 
-        imgs.append(img_crop)
-        dmaps.append(ddmaps)
-        if not test:
-          imgs.append(ImageOps.mirror(img_crop))
-          dmaps.append(ddmaps_mirrored)
+            imgs.append(img_crop)
+            dmaps.append(ddmaps)
+            if not test:
+              imgs.append(ImageOps.mirror(img_crop))
+              dmaps.append(ddmaps_mirrored)
 
     if random_crop is not None and not (rows==1 and columns==1) and not test:
       for b in range(random_crop):
