@@ -20,7 +20,8 @@ def get_test_names(part='B'):
             data_path='./datasets/shanghaitech/'+part+'/test/',
             test=True,
             test_dict=test_dict,
-            input_size=[384,512]
+            input_size=[384,512],
+            load_data_fn=load_data_ShanghaiTech
         )
         random.shuffle(strict_test_names)
         print()
