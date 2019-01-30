@@ -157,6 +157,7 @@ def preprocess_data(names, data_path, save_path='./processed', random_crop=None,
     img, coords = load_data_fn(name)
 
     if img.mode !='RGB':
+      img = img.convert('RGB')
     img_width, img_height = img.size
 
     imgs = []
