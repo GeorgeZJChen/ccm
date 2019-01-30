@@ -102,6 +102,7 @@ def load_negatives_data_names():
   for _, _, files in os.walk('./negative/negative_images_1/'):
     for filename in files:
       names.append(filename)
+  return names
 def load_data_negatives(path):
   img = Image.open(path)
   coords = []
