@@ -85,14 +85,14 @@ def full_test(sess, Decoded,
         test_inputs, test_targets = get_data_by_names(batch_names)
         test_t15, test_t14, test_t13, test_t12, test_t11, test_t10 = test_targets
         test_D  = sess.run(Decoded, feed_dict={
-        input: test_inputs,
-        target15: test_t15,
-        target14: test_t14,
-        target13: test_t13,
-        target12: test_t12,
-        target11: test_t11,
-        target10: test_t10,
-        training: False,
+            input: test_inputs,
+            target15: test_t15,
+            target14: test_t14,
+            target13: test_t13,
+            target12: test_t12,
+            target11: test_t11,
+            target10: test_t10,
+            training: False,
         })
         out15, out14, out13, out12, out11, out10 = test_D
         for i in range(len(batch_names)):

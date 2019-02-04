@@ -3,12 +3,12 @@ import tensorflow as tf
 import time
 import logging
 import random
+from threading import Thread
 
 from functions import *
 from model_gpus import *
 from test_gpus import *
 from data import *
-
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -16,7 +16,7 @@ parser.add_argument('resume', nargs='?', default='0')
 args = parser.parse_args()
 
 import os
-# os.environ['CUDA_VISIBLE_DEVICES']='0'
+os.environ['CUDA_VISIBLE_DEVICES']='1,3'
 gpu_num = 2
 new_model = args.resume!='1'
 batch_size = 8
@@ -46,7 +46,7 @@ if True:
 
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
-train_names, test_names = get_train_data_names(part=part, negatives=True)
+train_names, test_names = get_train_data_names(part=part)
 
 print("Training begins")
 with tf.Session(graph=graph) as sess:
@@ -59,31 +59,53 @@ with tf.Session(graph=graph) as sess:
     test_MAEs = None
     best_result = 200
   else:
-    last_cp = tf.train.latest_checkpoint('./model')
+    last_cp = tf.train.latest_checkpoint('./output/model')
     saver.restore(sess, last_cp)
 #     saver.restore(sess, './model-ccmv2sha-01042236')
     global_step = int(last_cp[last_cp.rfind('-')+1:])
     EMA = 0
     train_MAEs = None
     test_MAEs = None
-    best_result = tf.train.latest_checkpoint('./best_model')
+    best_result = tf.train.latest_checkpoint('./output/best_model')
     best_result = float(best_result[best_result.rfind('-')+1:])
 
   try:
+
+    batch_data = {}
+    def data_loader(batch_names):
+        batch_inputs, batch_targets = next_batch(batch_size, batch_names)
+        batch_data['inputs'] = batch_inputs
+        batch_data['targets'] = batch_targets
+    train_data_thread = Thread(target=data_loader, args=(train_names,))
+    train_data_thread.start()
+
     for step in range(global_step, 150000):
       if step < 50000:
         lr = 1e-4
       elif step < 100000:
         lr = 5e-5
-      elif step < 125000:
+      elif step < 150000:
         lr = 1e-5
-      else:
+      elif step < 200000:
         lr = 1e-6
 
-      if step%25000==0 and not step==0:
-        best_saver.restore(sess, tf.train.latest_checkpoint('./best_model/'))
+      if step%50000==0 and not step==0:
+        best_saver.restore(sess, tf.train.latest_checkpoint('./output/best_model/'))
 
-      train_inputs, train_targets = next_batch(batch_size, train_names)
+      data_start_time = time.time()
+
+      train_data_thread.join()
+      prefetched_batch_data = batch_data
+      train_inputs = prefetched_batch_data['inputs']
+      train_targets = prefetched_batch_data['targets']
+
+      batch_data = {}
+      train_data_thread = Thread(target=data_loader, args=(train_names,))
+      train_data_thread.start()
+
+      print('>>> data elapsed time:', time.time()-data_start_time)
+      train_start_time = time.time()
+
       train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
       random_dropout = 0
       _ , train_loss = sess.run([train, loss], feed_dict={
@@ -98,11 +120,14 @@ with tf.Session(graph=graph) as sess:
           alpha: lr,
           dropout: random_dropout,
       })
+
+      print('>>> train elapsed time:', time.time()-train_start_time)
+
       if EMA == 0:
         EMA = train_loss
       else:
         EMA = moving_average(train_loss, EMA)
-      if step%10==0:
+      if step%20==0:
 
         train_D = sess.run(Decoded, feed_dict={
             input: train_inputs,
@@ -165,18 +190,18 @@ with tf.Session(graph=graph) as sess:
 
         if step%100==0:
 
-          saver.save(sess, "./model/model", global_step=global_step)
+          saver.save(sess, "./output/model/model", global_step=global_step)
           print(">>> Model saved:", global_step)
           logging.info(">>> Model saved: "+str(global_step))
 
           if global_step>=2000 or step==0:
             test_results = full_test(sess, Decoded,
-                input, target15, target14, target13, target12, target11, target10, training, part=part)
+                input, target15, target14, target13, target12, target11, target10, training, part=part, gpu_num=gpu_num)
             log_str = ['>>> TEST ', time.asctime()+': i [', str(global_step),
                        '] || [Result]:', str([round(result, 2) for result in test_results])]
             if round(test_results[0],2) < best_result:
               best_result = round(test_results[0],2)
-              best_saver.save(sess, "./best_model/model-"+str(best_result))
+              best_saver.save(sess, "./output/best_model/model-"+str(best_result))
               log_str.append(' * BEST *')
             print(*log_str)
             logging.info(' '.join(log_str))
@@ -184,5 +209,5 @@ with tf.Session(graph=graph) as sess:
       global_step = global_step + 1
   except KeyboardInterrupt:
     print('>>> KeyboardInterrupt. Saving model...')
-    saver.save(sess, "./model/model", global_step=global_step)
+    saver.save(sess, "./output/model/model", global_step=global_step)
     print(">>> Model saved:", str(global_step))
