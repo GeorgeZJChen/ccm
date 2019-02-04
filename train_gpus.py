@@ -28,13 +28,13 @@ print("Initialising Tensors")
 if True:
   graph = tf.Graph()
   with graph.as_default():
-    input = tf.split(tf.placeholder( tf.float32, shape=[None, 384, 512, 3]), gpu_num )
-    target15 = tf.split(tf.placeholder( tf.float32 , shape=(None, 1, 1, 1)), gpu_num )
-    target14 = tf.split(tf.placeholder( tf.float32 , shape=(None, 3, 4, 1)), gpu_num )
-    target13 = tf.split(tf.placeholder( tf.float32 , shape=(None, 6, 8, 1)), gpu_num )
-    target12 = tf.split(tf.placeholder( tf.float32 , shape=(None, 12, 16, 1)), gpu_num )
-    target11 = tf.split(tf.placeholder( tf.float32 , shape=(None, 24, 32, 1)), gpu_num )
-    target10 = tf.split(tf.placeholder( tf.float32 , shape=(None, 48, 64, 1)), gpu_num )
+    input = tf.placeholder( tf.float32, shape=[None, 384, 512, 3])
+    target15 = tf.placeholder( tf.float32 , shape=(None, 1, 1, 1))
+    target14 = tf.placeholder( tf.float32 , shape=(None, 3, 4, 1))
+    target13 = tf.placeholder( tf.float32 , shape=(None, 6, 8, 1))
+    target12 = tf.placeholder( tf.float32 , shape=(None, 12, 16, 1))
+    target11 = tf.placeholder( tf.float32 , shape=(None, 24, 32, 1))
+    target10 = tf.placeholder( tf.float32 , shape=(None, 48, 64, 1))
     training = tf.placeholder( tf.bool )
     dropout = tf.placeholder_with_default(tf.constant(0.3, tf.float32), shape=[])
     alpha = tf.placeholder_with_default(tf.constant(1e-5, tf.float64), shape=[])
@@ -46,7 +46,7 @@ if True:
 
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
-train_names, test_names = get_data_names(part=part, negatives=True)
+train_names, test_names = get_train_data_names(part=part, negatives=True)
 
 print("Training begins")
 with tf.Session(graph=graph) as sess:

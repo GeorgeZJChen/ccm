@@ -7,7 +7,7 @@ import pickle
 from functions import *
 
 
-def get_data_names(part, negatives=False):
+def get_train_data_names(part, negatives=False):
     if not (os.path.exists('./train_names.pkl') and os.path.exists('./test_names.pkl')):
         move_files('./datasets/shanghaitech/'+part+'/', part = part)
         tf.reset_default_graph()

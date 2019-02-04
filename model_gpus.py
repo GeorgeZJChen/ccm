@@ -120,9 +120,9 @@ def decoder(inputs, training, dropout):
   return out15, out14, out13, out12, out11, out10
 
 def en_decode(input, training, dropout, reuse):
-  with tf.variable_scope('', reuse=False):
-    Encoded = encoder(input, training, dropout, reuse=reuse)
-    Decoded = decoder(Encoded, training, dropout, reuse=reuse)
+  with tf.variable_scope(tf.get_variable_scope(), reuse=reuse):
+    Encoded = encoder(input, training, dropout)
+    Decoded = decoder(Encoded, training, dropout)
     return Decoded
 
 def model(input, targets, training, alpha, dropout=0.3, gpu_num=0):
@@ -130,6 +130,14 @@ def model(input, targets, training, alpha, dropout=0.3, gpu_num=0):
   target15, target14, target13, target12, target11, target10 = targets
 
   print('input:', input.shape)
+
+  input = tf.split(input, gpu_num)
+  target15 = tf.split(target15, gpu_num)
+  target14 = tf.split(target14, gpu_num)
+  target13 = tf.split(target13, gpu_num)
+  target12 = tf.split(target12, gpu_num)
+  target11 = tf.split(target11, gpu_num)
+  target10 = tf.split(target10, gpu_num)
 
   losses = []
   Decoded_all = []

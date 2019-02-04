@@ -63,7 +63,7 @@ def get_data_by_names(names):
 
 def full_test(sess, Decoded,
     input, target15, target14, target13, target12, target11, target10, training,
-    part='B', gpu_num):
+    part='B', gpu_num=1):
   print(">>> Test begins", end='.')
   strict_test_names, test_dict = get_test_names(part)
   for key in test_dict:
@@ -79,7 +79,7 @@ def full_test(sess, Decoded,
     if len(batch_names) < gpu_num and k < len(strict_test_names)-1:
         continue
     else:
-        if k = len(strict_test_names)-1:
+        if k == len(strict_test_names)-1:
             while len(batch_names) < gpu_num:
                 batch_names.append('NULL')
         test_inputs, test_targets = get_data_by_names(batch_names)
