@@ -92,8 +92,6 @@ with tf.Session(graph=graph) as sess:
       if step%50000==0 and not step==0:
         best_saver.restore(sess, tf.train.latest_checkpoint('./output/best_model/'))
 
-      data_start_time = time.time()
-
       train_data_thread.join()
       prefetched_batch_data = batch_data
       train_inputs = prefetched_batch_data['inputs']
@@ -102,9 +100,6 @@ with tf.Session(graph=graph) as sess:
       batch_data = {}
       train_data_thread = Thread(target=data_loader, args=(train_names,))
       train_data_thread.start()
-
-      print('>>> data elapsed time:', time.time()-data_start_time)
-      train_start_time = time.time()
 
       train_t15, train_t14, train_t13, train_t12, train_t11, train_t10 = train_targets
       random_dropout = 0
@@ -120,8 +115,6 @@ with tf.Session(graph=graph) as sess:
           alpha: lr,
           dropout: random_dropout,
       })
-
-      print('>>> train elapsed time:', time.time()-train_start_time)
 
       if EMA == 0:
         EMA = train_loss
