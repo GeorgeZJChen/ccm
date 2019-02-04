@@ -72,7 +72,7 @@ with tf.Session(graph=graph) as sess:
   try:
 
     batch_data = {}
-    def _data_loader(batch_names):
+    def data_loader(batch_names):
         batch_inputs, batch_targets = next_batch(batch_size, batch_names)
         batch_data['inputs'] = batch_inputs
         batch_data['targets'] = batch_targets
