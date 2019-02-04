@@ -5,8 +5,8 @@ import logging
 import random
 
 from functions import *
-from model import *
-from test import *
+from model_gpus import *
+from test_gpus import *
 from data import *
 
 import argparse
@@ -18,6 +18,9 @@ args = parser.parse_args()
 import os
 # os.environ['CUDA_VISIBLE_DEVICES']='0'
 gpu_num = 2
+new_model = args.resume!='1'
+batch_size = 8
+part = 'B'
 
 tf.reset_default_graph()
 print("Initialising Tensors")
@@ -41,9 +44,6 @@ if True:
     best_saver = tf.train.Saver(max_to_keep=1)
     print('total number of parameters:', total_parameters())
 
-new_model = args.resume!='1'
-batch_size = 8
-part = 'B'
 
 logging.basicConfig(filename='./output/train.log',level=logging.INFO)
 train_names, test_names = get_data_names(part=part, negatives=True)
