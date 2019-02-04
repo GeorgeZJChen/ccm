@@ -163,7 +163,7 @@ def model(input, targets, training, alpha, dropout=0.3, gpu_num=0):
 
   L2_loss = tf.losses.get_regularization_loss() * 1e-4
 
-  loss = tf.reduce_mean(tf.concat(losses, axis=0))
+  loss = tf.reduce_mean(tf.stack(losses, axis=0))
   loss += L2_loss
 
   trainables = tf.trainable_variables()
